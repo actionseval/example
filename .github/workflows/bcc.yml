@@ -21,6 +21,6 @@ jobs:
       # - run: |
       #     sudo apt-get install bpfcc-tools linux-headers-$(uname -r)
       - run: |
-          sudo opensnoop-bpfcc -d 10
+          sudo opensnoop-bpfcc -n python3 > opensnoop.log &
           python3 -c "print('Hello, World!')"
           sleep 5
