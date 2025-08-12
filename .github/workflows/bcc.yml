@@ -1,0 +1,25 @@
+
+name: bcc
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          - 3.12
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: |
+          sudo apt-get install bpfcc-tools linux-headers-$(uname -r)
+      - run: |
+          sudo opensnoop-bpfcc
+          python3 -c "print('Hello, World!')"
+          sleep 5
