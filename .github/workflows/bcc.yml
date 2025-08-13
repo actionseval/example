@@ -25,18 +25,15 @@ jobs:
       - name: Create the Bash Wrapper
         shell: bash
         run: |
-          log_path="/home/runner/cintent/log/test"
-          
           cat << 'EOF' > /home/runner/cintent/bin/bash
           #!/bin/bash
           if [[ -n "${CINTENT_ENABLED}" ]]; then
             export CINTENT_ENABLED=true
           else
-            echo "Hello, World!" >> "$log_path"
+            echo "Hello, World!" >> /home/runner/cintent/log/test
           fi
           /bin/bash "$@"
           EOF
-          
           chmod +x /home/runner/cintent/bin/bash
           echo "/home/runner/cintent/bin" >> $GITHUB_PATH
       - name: Create the Bash Wrapper
