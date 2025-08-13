@@ -1,4 +1,4 @@
-name: strace
+name: bcc
 
 on: workflow_dispatch
 
@@ -13,32 +13,34 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-    
-      - name: Create the CIntent Directories
+
+      - name: Setup the CIntent Directories
+        if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          mkdir -p /home/runner/cintent /home/runner/cintent/bin /home/runner/cintent/log
-  
-      - name: Create the Bash Wrapper
+          echo "CINTENT_BIN=/home/runner/cintent/bin" >> $GITHUB_ENV
+          echo "CINTENT_LOG=/home/runner/cintent/log" >> $GITHUB_ENV
+          echo "CINTENT_BASH=/home/runner/cintent/bin/bash" >> $GITHUB_ENV
+          mkdir -p ${{ env.CINTENT_BIN }} ${{ env.CINTENT_LOG }}
+
+      - name: Setup the Bash Wrapper
+        if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          cat << 'EOF' > /home/runner/cintent/bin/bash
+          cat << 'EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -n "${CINTENT_ENABLED}" ]]; then
-            echo "Hello, World!" >> /home/runner/cintent/log/test
+            echo "Hello, Client" >> ${{ env.CINTENT_LOG }}/$(date +%s%N)
           else
             export CINTENT_ENABLED=true
           fi
           /bin/bash "$@"
           EOF
-          chmod +x /home/runner/cintent/bin/bash
-          echo "/home/runner/cintent/bin" >> $GITHUB_PATH
-      - name: Create the Bash Wrapper
+          chmod +x ${{ env.CINTENT_BASH }}
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+
+      - name: Test the Bash Wrapper (Remove Later)
         shell: bash
         run: |
-          bash -c "whoami"
-          sleep 5
-          cat /home/runner/cintent/log/test
+          bash -c "echo 'Hello, Runner'"
+          cat ${{ env.CINTENT_LOG }}/*
