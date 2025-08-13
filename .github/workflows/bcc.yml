@@ -30,7 +30,7 @@ jobs:
           cat << 'EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -n "${CINTENT_ENABLED}" ]]; then
-            echo "Hello, Client" >> ${{ env.CINTENT_LOG }}/$(date +%s%N)
+            sudo opensnoop-bpfcc -n echo >> ${{ env.CINTENT_LOG }}/$(date +%s%N)
           else
             export CINTENT_ENABLED=true
           fi
@@ -44,3 +44,9 @@ jobs:
         run: |
           bash -c "echo 'Hello, Runner'"
           cat ${{ env.CINTENT_LOG }}/*
+
+      - name: Update the Test Log (Remove Later)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cintent_log
+          path: ${{ env.CINTENT_LOG }}
