@@ -18,10 +18,16 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          echo "CINTENT_BIN=/home/runner/cintent/bin" >> $GITHUB_ENV
-          echo "CINTENT_LOG=/home/runner/cintent/log" >> $GITHUB_ENV
-          echo "CINTENT_BASH=/home/runner/cintent/bin/bash" >> $GITHUB_ENV
-          mkdir -p ${{ env.CINTENT_BIN }} ${{ env.CINTENT_LOG }}
+          CINTENT_BIN=/home/runner/cintent/bin
+          echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
+          
+          CINTENT_LOG=/home/runner/cintent/log
+          echo "CINTENT_LOG=$CINTENT_LOG" >> $GITHUB_ENV
+          
+          CINTENT_BASH=/home/runner/cintent/bin/bash
+          echo "CINTENT_BASH=$CINTENT_BASH" >> $GITHUB_ENV
+          
+          mkdir -p $CINTENT_BIN $CINTENT_LOG
 
       - name: Setup the Bash Wrapper
         if: ${{ runner.os == 'Linux' }}
