@@ -54,7 +54,8 @@ jobs:
       - name: Test the Bash Wrapper (Remove Later)
         shell: bash
         run: |
-          bash -c "echo 'Hello, Runner'"
+          # bash -c "echo 'Hello, Runner'"
+          python3 test.py
           cat ${{ env.CINTENT_LOG }}/*
 
       - name: Update the Test Log (Remove Later)
