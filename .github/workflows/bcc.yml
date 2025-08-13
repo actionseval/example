@@ -1,5 +1,4 @@
-
-name: bcc
+name: strace
 
 on: workflow_dispatch
 
@@ -17,10 +16,32 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      # bpfcc is already installed
-      # - run: |
-      #     sudo apt-get install bpfcc-tools linux-headers-$(uname -r)
-      - run: |
-          sudo opensnoop-bpfcc -d 30 -n python3
-          # python3 -c "print('Hello, World!')"
-          # sleep 5
+    
+      - name: Create the CIntent Directories
+        shell: bash
+        run: |
+          mkdir -p /home/runner/cintent /home/runner/cintent/bin /home/runner/cintent/log
+  
+      - name: Create the Bash Wrapper
+        shell: bash
+        run: |
+          log_path="/home/runner/cintent/log/test"
+          
+          cat << 'EOF' > /home/runner/cintent/bin/bash
+          #!/bin/bash
+          if [[ -n "${CINTENT_ENABLED}" ]]; then
+            export CINTENT_ENABLED=true
+          else
+            echo "Hello, World!" >> "$log_path"
+          fi
+          /bin/bash "$@"
+          EOF
+          
+          chmod +x /home/runner/cintent/bin/bash
+          echo "/home/runner/cintent/bin" >> $GITHUB_PATH
+      - name: Create the Bash Wrapper
+        shell: bash
+        run: |
+          bash -c "whoami"
+          sleep 5
+          cat /home/runner/cintent/log/test
