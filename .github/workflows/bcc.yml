@@ -28,9 +28,9 @@ jobs:
           cat << 'EOF' > /home/runner/cintent/bin/bash
           #!/bin/bash
           if [[ -n "${CINTENT_ENABLED}" ]]; then
-            export CINTENT_ENABLED=true
-          else
             echo "Hello, World!" >> /home/runner/cintent/log/test
+          else
+            export CINTENT_ENABLED=true
           fi
           /bin/bash "$@"
           EOF
