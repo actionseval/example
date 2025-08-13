@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: |
           log_file=${{ env.CINTENT_LOG }}/$(date +%s%N)
-          sudo opensnoop-bpfcc > $log_file &
+          sudo opensnoop-bpfcc -n python3 > $log_file &
 
           TIMEOUT_SECONDS=60
           start_time=$SECONDS
@@ -58,8 +58,8 @@ jobs:
           python3 test.py
           cat ${{ env.CINTENT_LOG }}/*
 
-      - name: Update the Test Log (Remove Later)
-        uses: actions/upload-artifact@v4
-        with:
-          name: cintent_log
-          path: ${{ env.CINTENT_LOG }}
+      # - name: Update the Test Log (Remove Later)
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: cintent_log
+      #     path: ${{ env.CINTENT_LOG }}
