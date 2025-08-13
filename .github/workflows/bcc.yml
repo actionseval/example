@@ -42,8 +42,8 @@ jobs:
       - name: Start opensnoop
         shell: bash
         run: |
-          sudo opensnoop-bpfcc -n echo > ${{ env.CINTENT_LOG }}/$(date +%s%N) &
-          sleep 15
+          sudo opensnoop-bpfcc > ${{ env.CINTENT_LOG }}/$(date +%s%N) &
+          sleep 30
 
       - name: Test the Bash Wrapper (Remove Later)
         shell: bash
