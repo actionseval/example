@@ -30,14 +30,21 @@ jobs:
           cat << 'EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -n "${CINTENT_ENABLED}" ]]; then
-            sudo opensnoop-bpfcc -n echo >> ${{ env.CINTENT_LOG }}/$(date +%s%N)
+            /bin/bash "$@"
+            echo "Hello, Client" >> ${{ env.CINTENT_LOG }}/$(date +%s%N)
           else
             export CINTENT_ENABLED=true
+            /bin/bash "$@"
           fi
-          /bin/bash "$@"
           EOF
           chmod +x ${{ env.CINTENT_BASH }}
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+
+      - name: Start opensnoop
+        shell: bash
+        run: |
+          sudo opensnoop-bpfcc -n echo > ${{ env.CINTENT_LOG }}/$(date +%s%N) &
+          sleep 15
 
       - name: Test the Bash Wrapper (Remove Later)
         shell: bash
