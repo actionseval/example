@@ -31,7 +31,6 @@ jobs:
           #!/bin/bash
           if [[ -n "${CINTENT_ENABLED}" ]]; then
             /bin/bash "$@"
-            echo "Hello, Client" >> ${{ env.CINTENT_LOG }}/$(date +%s%N)
           else
             export CINTENT_ENABLED=true
             /bin/bash "$@"
