@@ -48,3 +48,9 @@ jobs:
         shell: bash
         run: |
           python3 -c "print('Hello, World')"
+        
+      - name: Testing Script
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          cat /home/runner/cintent/log/testing
