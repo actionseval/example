@@ -49,8 +49,8 @@ jobs:
         run: |
           python3 test.py
         
-      - name: Testing Script
+      - uses: actions/upload-artifact@v4
         if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
-          cat /home/runner/cintent/log/testing
+        with:
+          name: ${{ env.CINTENT_ARTIFACT_NAME }}
+          path: ${{ env.CINTENT_LOG }}
