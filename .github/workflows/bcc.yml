@@ -37,6 +37,7 @@ jobs:
           else
             export CINTENT_ENABLED=true
             sudo python3 opensnoop.py ${{ github.repository }} > /home/runner/cintent/log/testing &
+            sleep 10
             /bin/bash "$@"
           fi
           EOF
