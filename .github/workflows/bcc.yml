@@ -7,12 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
 
-      - name: Set Environmental Variables
+      - name: Set Environmental Variables on Linux
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
@@ -30,45 +26,25 @@ jobs:
           echo "CINTENT_LOG=$CINTENT_LOG" >> $GITHUB_ENV
           mkdir -p $CINTENT_LOG
 
-      - name: Setup Bash Wrapper
+      - name: Start opensnoop on Linux
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          cat << 'EOF' > ${{ env.CINTENT_BASH }}
-          #!/bin/bash
-          if [[ -n "${CINTENT_ENABLED}" ]]; then
-            /bin/bash "$@"
-          else
-            export CINTENT_ENABLED=true
-            /bin/bash "$@"
-          fi
-          EOF
-          chmod +x ${{ env.CINTENT_BASH }}
-          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
-
-      - name: Start opensnoop
-        shell: bash
-        run: |
-          log_file=${{ env.CINTENT_LOG }}/$(date +%s%N)
-          sudo opensnoop-bpfcc -n python3 > $log_file &
-
-          TIMEOUT_SECONDS=60
+          log_path=${{ env.CINTENT_LOG }}/$(date +%s%N)
+          sudo opensnoop-bpfcc -n python3 >> $log_path &
+          
           start_time=$SECONDS
-          until [ -s "$log_file" ] || (( SECONDS - start_time >= TIMEOUT_SECONDS )); do
+          until [ -s "$log" ] || (( SECONDS - start_time >= 60 )); do
             sleep 1
           done
-
-
-
-      - name: Test the Bash Wrapper (Remove Later)
-        shell: bash
-        run: |
-          # bash -c "echo 'Hello, Runner'"
-          python3 test.py
-          cat ${{ env.CINTENT_LOG }}/*
+          
+          if [ ! -s "$log" ]; then
+            echo "opensnoop failed to start!" 1>&2
+            exit 1
+          fi
 
       # - name: Update the Test Log (Remove Later)
       #   uses: actions/upload-artifact@v4
       #   with:
-      #     name: cintent_log
+      #     name: ${{ env.CINTENT_ARTIFACT_NAME }}
       #     path: ${{ env.CINTENT_LOG }}
