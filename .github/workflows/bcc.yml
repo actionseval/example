@@ -25,24 +25,23 @@ jobs:
           CINTENT_LOG=/home/runner/cintent/log
           echo "CINTENT_LOG=$CINTENT_LOG" >> $GITHUB_ENV
           mkdir -p $CINTENT_LOG
-
-      - name: Setup the Bash Wrapper
+  
+      - name: Start opensnoop on Linux
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          cat << 'EOF' > ${{ env.CINTENT_BASH }}
-          #!/bin/bash
-          if [[ -n "${CINTENT_ENABLED}" ]]; then
-            /bin/bash "$@"
-          else
-            export CINTENT_ENABLED=true
-            sudo python3 opensnoop.py ${{ github.repository }} > /home/runner/cintent/log/testing &
-            sleep 30
-            /bin/bash "$@"
+          log_path=${{ env.CINTENT_LOG }}/$(date +%s%N)
+          sudo opensnoop-bpfcc >> $log_path &
+          
+          start_time=$SECONDS
+          until [ -s "$log" ] || (( SECONDS - start_time >= 60 )); do
+            sleep 1
+          done
+          
+          if [ ! -s "$log" ]; then
+            echo "opensnoop failed to start!" 1>&2
+            exit 1
           fi
-          EOF
-          chmod +x ${{ env.CINTENT_BASH }}
-          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
       - name: Testing Script
         if: ${{ runner.os == 'Linux' }}
