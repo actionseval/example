@@ -48,7 +48,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          python3 -c "print('Hello, World')"
+          python3 test.py
         
       - name: Testing Script
         if: ${{ runner.os == 'Linux' }}
