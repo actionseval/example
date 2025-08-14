@@ -37,7 +37,7 @@ jobs:
           else
             export CINTENT_ENABLED=true
           
-            log=${{ env.CINTENT_LOG }}/$RANDOM
+            log=${{ env.CINTENT_LOG }}/$(date +%s%N)
             sudo opensnoop-bpfcc >> $log &
             pid=$!
             
