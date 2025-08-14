@@ -30,7 +30,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          cat << 'EOF' > $CINTENT_BASH
+          cat << 'EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -n "${CINTENT_ENABLED}" ]]; then
             /bin/bash "$@"
