@@ -25,20 +25,20 @@ jobs:
           CINTENT_LOG=/home/runner/cintent/log
           echo "CINTENT_LOG=$CINTENT_LOG" >> $GITHUB_ENV
           mkdir -p $CINTENT_LOG
-  
-      - name: Setup Bash Wrapper on Linux
+
+      - name: Setup the Bash Wrapper
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          cat << EOF > ${{ env.CINTENT_BASH }}
+          cat << 'EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
-          if [[ -z "${CINTENT_REQUESTED}" ]]; then
-            export CINTENT_REQUESTED=true
-            echo "Here"
+          if [[ -n "${CINTENT_ENABLED}" ]]; then
+            /bin/bash "$@"
+          else
+            export CINTENT_ENABLED=true
             sudo python3 opensnoop.py ${{ github.repository }} > /home/runner/cintent/log/testing &
-            sleep 5
+            /bin/bash "$@"
           fi
-          /bin/bash "$@"
           EOF
           chmod +x ${{ env.CINTENT_BASH }}
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
