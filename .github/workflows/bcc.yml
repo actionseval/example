@@ -32,12 +32,13 @@ jobs:
         run: |
           cat << EOF > ${{ env.CINTENT_BASH }}
           #!/bin/bash
+          log=${{ env.CINTENT_LOG }}/$(date +%s%N)
+          
           if [[ -n "${CINTENT_ENABLED}" ]]; then
             /bin/bash "$@"
           else
             export CINTENT_ENABLED=true
             
-            log=${{ env.CINTENT_LOG }}/$(date +%s%N)
             sudo opensnoop-bpfcc >> $log &
             pid=$!
             
