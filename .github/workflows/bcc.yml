@@ -35,7 +35,7 @@ jobs:
           if [[ -z "${CINTENT_REQUESTED}" ]]; then
             export CINTENT_REQUESTED=true
             echo "Here"
-            sudo python3 ${{ github.action_path }}/opensnoop.py ${{ github.repository }} > /home/runner/cintent/log/testing &
+            sudo python3 opensnoop.py ${{ github.repository }} > /home/runner/cintent/log/testing &
             sleep 5
           fi
           /bin/bash "$@"
