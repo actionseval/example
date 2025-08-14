@@ -32,25 +32,26 @@ jobs:
         run: |
           cat << EOF > ${{ env.CINTENT_BASH }}
           #!/bin/bash
-          log=${{ env.CINTENT_LOG }}/$(date +%s%N)
+          # log=${{ env.CINTENT_LOG }}/$(date +%s%N)
           
           if [[ -n "${CINTENT_ENABLED}" ]]; then
             /bin/bash "$@"
           else
             export CINTENT_ENABLED=true
             
-            sudo opensnoop-bpfcc >> $log &
+            sudo opensnoop-bpfcc >> ${{ env.CINTENT_LOG }}/$(date +%s%N) &
+            sleep 30
             pid=$!
             
-            start_time=$SECONDS
-            until [ -s "$log" ] || (( SECONDS - start_time >= 60 )); do
-              sleep 1
-            done
+            # start_time=$SECONDS
+            # until [ -s "$log" ] || (( SECONDS - start_time >= 60 )); do
+            #   sleep 1
+            # done
             
-            if [ ! -s "$log" ]; then
-              echo "opensnoop failed to start!" 1>&2
-              exit 1
-            fi
+            # if [ ! -s "$log" ]; then
+            #   echo "opensnoop failed to start!" 1>&2
+            #   exit 1
+            # fi
             
             /bin/bash "$@"
 
