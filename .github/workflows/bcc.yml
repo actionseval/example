@@ -30,8 +30,8 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          log_path=${{ env.CINTENT_LOG }}/$(date +%s%N)
-          sudo opensnoop-bpfcc >> $log_path &
+          log=${{ env.CINTENT_LOG }}/$(date +%s%N)
+          sudo opensnoop-bpfcc >> $log &
           
           start_time=$SECONDS
           until [ -s "$log" ] || (( SECONDS - start_time >= 60 )); do
