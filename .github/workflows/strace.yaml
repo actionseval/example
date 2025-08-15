@@ -38,6 +38,7 @@ jobs:
               -e abbrev=read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
               -e decode-fds=path \
               -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
+              -e verbose=execve,execveat \
               -ff \
               -o $CINTENT_LOGS/$(date +%s%N) \
               -qqq \
