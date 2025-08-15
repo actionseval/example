@@ -67,7 +67,7 @@ jobs:
               fi
               
               strace_log=$CINTENT_LOGS/strace.$timestamp
-              /bin/bash "$@" &
+              ( kill -SIGSTOP $BASHPID; exec /bin/bash "$@" ) &
               pid=$!
               sudo strace \
                 -e decode-fds=path \
@@ -80,6 +80,7 @@ jobs:
                 -u runner \
                 -Y \
                 -z
+              kill -CONT $pid
           else
             /bin/bash "$@"
           fi
