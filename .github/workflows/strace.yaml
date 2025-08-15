@@ -51,7 +51,7 @@ jobs:
               "workspace = $GITHUB_WORKSPACE\n"\
               "job_id = $GITHUB_JOB\n"\
               "step_id = $CINTENT_STEP_ID\n"\
-              > metadata_log
+              > $metadata_log
               sed -i 's/^[ ]*//' $metadata_log
               
               execsnoop_log=$CINTENT_LOGS/execsnoop.$timestamp
