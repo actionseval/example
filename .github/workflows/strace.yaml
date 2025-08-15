@@ -41,7 +41,6 @@ jobs:
               
               CINTENT_STEP_ID=$(($CINTENT_STEP_ID+1))
               echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
-              
               echo -en \
               "repository = $GITHUB_REPOSITORY\n"\
               "branch = $GITHUB_REF_NAME\n"\
@@ -53,7 +52,17 @@ jobs:
               "step_id = $CINTENT_STEP_ID\n"
               > $CINTENT_LOGS/metadata.$timestamp
               
-              sudo execsnoop-bpfcc -qx >> $CINTENT_LOGS/execsnoop.$timestamp &
+              execsnoop_log=$CINTENT_LOGS/execsnoop.$timestamp
+              start_time=$SECONDS
+              timeout_time=60
+              sudo execsnoop-bpfcc -qx >> $execsnoop_log &
+              until [ -s "$execsnoop_log" ] || (( SECONDS - start_time >= timeout_time )); do
+                sleep 1
+              done
+              if [ ! -s "$execsnoop_log" ]; then
+                echo "execsnoop failed to start!" 1>&2
+                exit 1
+              fi
               
               sudo strace \
                 -e decode-fds=path \
