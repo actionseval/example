@@ -34,7 +34,7 @@ jobs:
           #!/bin/bash
           if [[ -z "${CINTENT_ENABLED}" ]]; then
             export CINTENT_ENABLED=true
-            sudo strace -e decode-fds=path -e trace=open,openat,openat2 -ff -o $CINTENT_LOGS/$(date +%s%N) -qqq -tt -u runner -z /bin/bash "$@"
+            sudo strace -e decode-fds=path -e trace=execve,open -ff -o $CINTENT_LOGS/$(date +%s%N) -qqq -tt -u runner -z /bin/bash "$@"
           else
             /bin/bash "$@"
           fi
