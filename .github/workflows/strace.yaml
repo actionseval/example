@@ -25,10 +25,10 @@ jobs:
           CINTENT_LOGS=/home/runner/cintent/log
           echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
           mkdir -p $CINTENT_LOGS
-          
+  
           CINTENT_STEP_ID=0
           echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
-
+  
       - name: Apply Bash Wrapper on Linux
         if: ${{ runner.os == 'Linux' }}
         shell: bash
@@ -39,6 +39,7 @@ jobs:
               export CINTENT_IS_TRACING_RUN=true
               timestamp=$(date +%s%N)
               
+              metadata_log=$CINTENT_LOGS/metadata.$timestamp
               CINTENT_STEP_ID=$(($CINTENT_STEP_ID+1))
               echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
               echo -en \
@@ -50,7 +51,8 @@ jobs:
               "workspace = $GITHUB_WORKSPACE\n"\
               "job_id = $GITHUB_JOB\n"\
               "step_id = $CINTENT_STEP_ID\n"\
-              > $CINTENT_LOGS/metadata.$timestamp
+              > metadata_log
+              sed -i 's/^[ ]*//' metadata_log
               
               execsnoop_log=$CINTENT_LOGS/execsnoop.$timestamp
               start_time=$SECONDS
@@ -64,11 +66,12 @@ jobs:
                 exit 1
               fi
               
+              strace_log=$CINTENT_LOGS/strace.$timestamp
               sudo strace \
                 -e decode-fds=path \
                 -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
                 -ff \
-                -o $CINTENT_LOGS/strace.$timestamp \
+                -o $strace_log \
                 -qqq \
                 -tt \
                 -u runner \
