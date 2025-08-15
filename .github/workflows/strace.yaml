@@ -57,7 +57,7 @@ jobs:
               execsnoop_log=$CINTENT_LOGS/execsnoop.$timestamp
               start_time=$SECONDS
               timeout_time=60
-              sudo execsnoop-bpfcc -qx >> $execsnoop_log &
+              sudo execsnoop-bpfcc -qx >> $execsnoop_log 2> /dev/null &
               until [ -s "$execsnoop_log" ] || (( SECONDS - start_time >= timeout_time )); do
                 sleep 1
               done
