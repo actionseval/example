@@ -33,15 +33,15 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          cat <<- 'WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
-            #!/bin/bash
-            if [[ -z "${CINTENT_IS_TRACING_RUN}" ]]; then
-            export CINTENT_IS_TRACING_RUN=true
-            
-            timestamp=$(date +%s%N)
-            CINTENT_STEP_ID=$(($CINTENT_STEP_ID+1))
-            echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
-            cat <<- METADATA_EOF > $CINTENT_LOGS/metadata.$timestamp
+          cat << 'WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
+          #!/bin/bash
+          if [[ -z "${CINTENT_IS_TRACING_RUN}" ]]; then
+              export CINTENT_IS_TRACING_RUN=true
+              timestamp=$(date +%s%N)
+              
+              CINTENT_STEP_ID=$(($CINTENT_STEP_ID+1))
+              echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
+              cat <<- METADATA_EOF > $CINTENT_LOGS/metadata.$timestamp
               {
                 "repository": $GITHUB_REPOSITORY,
                 "branch": $GITHUB_REF_NAME,
@@ -52,23 +52,24 @@ jobs:
                 "job_id": $GITHUB_JOB,
                 "step_id": $CINTENT_STEP_ID
               }
-            METADATA_EOF
-            
-            sudo execsnoop-bpfcc -qx >> $CINTENT_LOGS/execsnoop.$timestamp &
-            sudo strace \
-              -e decode-fds=path \
-              -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
-              -ff \
-              -o $CINTENT_LOGS/strace.$timestamp \
-              -qqq \
-              -tt \
-              -u runner \
-              -Y \
-              -z \
+              METADATA_EOF
+              
+              sudo execsnoop-bpfcc -qx >> $CINTENT_LOGS/execsnoop.$timestamp &
+              
+              sudo strace \
+                -e decode-fds=path \
+                -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
+                -ff \
+                -o $CINTENT_LOGS/strace.$timestamp \
+                -qqq \
+                -tt \
+                -u runner \
+                -Y \
+                -z \
+                /bin/bash "$@"
+          else
               /bin/bash "$@"
-              else
-              /bin/bash "$@"
-            fi
+          fi
           WRAPPER_EOF
           chmod +x ${{ env.CINTENT_BASH }}
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
