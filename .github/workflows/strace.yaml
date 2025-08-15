@@ -67,17 +67,19 @@ jobs:
               fi
               
               strace_log=$CINTENT_LOGS/strace.$timestamp
+              /bin/bash "$@" &
+              pid=$!
               sudo strace \
                 -e decode-fds=path \
                 -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
                 -ff \
                 -o $strace_log \
+                -p $pid \
                 -qqq \
                 -tt \
                 -u runner \
                 -Y \
-                -z \
-                /bin/bash "$@"
+                -z
           else
             /bin/bash "$@"
           fi
