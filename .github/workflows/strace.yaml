@@ -42,15 +42,15 @@ jobs:
               CINTENT_STEP_ID=$(($CINTENT_STEP_ID+1))
               echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
               
-              echo -n
-                "repository = '$GITHUB_REPOSITORY'" \
-                "branch = '$GITHUB_REF_NAME'" \
-                "workflow = '${GITHUB_WORKFLOW_REF%@*}'" \
-                "run_number = '$GITHUB_RUN_NUMBER'" \
-                "run_attempt = '$GITHUB_RUN_ATTEMPT'" \
-                "workspace = '$GITHUB_WORKSPACE'" \
-                "job_id = '$GITHUB_JOB'" \
-                "step_id = '$CINTENT_STEP_ID'"
+              echo -en \
+              "repository = $GITHUB_REPOSITORY\n"\
+              "branch = $GITHUB_REF_NAME\n"\
+              "workflow = ${GITHUB_WORKFLOW_REF%@*}\n"\
+              "run_number = $GITHUB_RUN_NUMBER\n"\
+              "run_attempt = $GITHUB_RUN_ATTEMPT\n"\
+              "workspace = $GITHUB_WORKSPACE\n"\
+              "job_id = $GITHUB_JOB\n"\
+              "step_id = $CINTENT_STEP_ID\n"
               > $CINTENT_LOGS/metadata.$timestamp
               
               sudo execsnoop-bpfcc -qx >> $CINTENT_LOGS/execsnoop.$timestamp &
