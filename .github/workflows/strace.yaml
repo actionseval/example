@@ -43,14 +43,14 @@ jobs:
               echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
               cat << METADATA_EOF > $CINTENT_LOGS/metadata.$timestamp
               {
-                  "repository": $GITHUB_REPOSITORY,
-                  "branch": $GITHUB_REF_NAME,
-                  "workflow": ${GITHUB_WORKFLOW_REF%@*},
-                  "run_number": $GITHUB_RUN_NUMBER,
-                  "run_attempt": $GITHUB_RUN_ATTEMPT,
-                  "workspace": $GITHUB_WORKSPACE,
-                  "job_id": $GITHUB_JOB,
-                  "step_id": $CINTENT_STEP_ID
+              "repository": $GITHUB_REPOSITORY,
+              "branch": $GITHUB_REF_NAME,
+              "workflow": ${GITHUB_WORKFLOW_REF%@*},
+              "run_number": $GITHUB_RUN_NUMBER,
+              "run_attempt": $GITHUB_RUN_ATTEMPT,
+              "workspace": $GITHUB_WORKSPACE,
+              "job_id": $GITHUB_JOB,
+              "step_id": $CINTENT_STEP_ID
               }
               METADATA_EOF
               
