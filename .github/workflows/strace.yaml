@@ -53,4 +53,4 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         with:
           name: ${{ env.CINTENT_ARTIFACT_NAME }}
-          path: ${{ env.CINTENT_LOG }}
+          path: ${{ env.CINTENT_LOGS }}
