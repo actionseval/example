@@ -1,0 +1,57 @@
+name: strace
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set Environmental Variables on Linux
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          CINTENT_ARTIFACT_NAME="cintent_logs"
+          echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
+          
+          CINTENT_BASH=/home/runner/cintent/bin/bash
+          echo "CINTENT_BASH=$CINTENT_BASH" >> $GITHUB_ENV
+          
+          CINTENT_BIN=/home/runner/cintent/bin
+          echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
+          mkdir -p $CINTENT_BIN
+          
+          CINTENT_LOGS=/home/runner/cintent/log
+          echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
+          mkdir -p $CINTENT_LOGS
+  
+      - name: Apply Bash Wrapper on Linux
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          cat << 'EOF' > ${{ env.CINTENT_BASH }}
+          #!/bin/bash
+          if [[ -z "${CINTENT_ENABLED}" ]]; then
+            export CINTENT_ENABLED=true
+            sudo strace -e decode-fds=path -e trace=open,openat,openat2 -ff -o $CINTENT_LOGS/$(date +%s%N) -qqq -tt -u runner -z /bin/bash "$@"
+          else
+            /bin/bash "$@"
+          fi
+          EOF
+          chmod +x ${{ env.CINTENT_BASH }}
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+
+      - name: Run Test Commands (REMOVE LATER)
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          python3 test.py
+          python3 ignore.py
+          ls $CINTENT_LOGS
+      
+      # - uses: actions/upload-artifact@v4
+      #   if: ${{ runner.os == 'Linux' }}
+      #   with:
+      #     name: ${{ env.CINTENT_ARTIFACT_NAME }}
+      #     path: ${{ env.CINTENT_LOG }}
