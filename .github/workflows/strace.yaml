@@ -79,7 +79,7 @@ jobs:
                 -tt \
                 -u runner \
                 -Y \
-                -z
+                -z &
               kill -CONT $pid
           else
             /bin/bash "$@"
