@@ -49,7 +49,7 @@ jobs:
               "run_attempt = $GITHUB_RUN_ATTEMPT\n"\
               "workspace = $GITHUB_WORKSPACE\n"\
               "job_id = $GITHUB_JOB\n"\
-              "step_id = $CINTENT_STEP_ID\n"
+              "step_id = $CINTENT_STEP_ID\n"\
               > $CINTENT_LOGS/metadata.$timestamp
               
               execsnoop_log=$CINTENT_LOGS/execsnoop.$timestamp
