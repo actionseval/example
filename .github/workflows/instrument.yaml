@@ -15,3 +15,7 @@ jobs:
       - name: Run Pyinstrument
         run: |
           pyinstrument --renderer=pyisession --outfile=TIMESTAMP.pyisession test.py
+
+      - name: Env
+        run: |
+          env
