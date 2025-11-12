@@ -1,0 +1,17 @@
+name: instrument
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Pyinstrument
+        run: |
+          pipx install pyinstrument
+        
+      - name: Run Pyinstrument
+        run: |
+          pyinstrument --renderer=pyisession --outfile=TIMESTAMP.pyisession test.py
