@@ -48,8 +48,11 @@ jobs:
           cat << 'PY_SPY_WRAPPER_EOF' > ${{ env.CINTENT_PY_SPY }}
           import sys
           import subprocess
+          import time
           args = ['/bin/bash'] + sys.argv[1:]
+          time.sleep(15)
           subprocess.run(args)
+          time.sleep(15)
           PY_SPY_WRAPPER_EOF
           
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
