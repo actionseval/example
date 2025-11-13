@@ -111,15 +111,8 @@ jobs:
               exit 1
             fi
   
-            exec py-spy record \
-            --duration unlimited \
-            --format speedscope \
-            --function \
-            --idle \
-            --output $CINTENT_LOGS/$timestamp.speedscope.json \
-            --rate 100 \
-            --subprocesses \
-            -- python3 $CINTENT_PY_SPY "$@"
+            # Start the py-spy wrapper
+            exec python3 $CINTENT_PY_SPY "$@"
             ) &
             run_pid=$!
   
@@ -136,7 +129,20 @@ jobs:
             -z
             ) &
   
-            # Wait for strace to start tracing (or timeout)
+            # Start py-spy and output its entries to the speedscope log
+            (
+            py-spy record \
+            --duration unlimited \
+            --format speedscope \
+            --function \
+            --idle \
+            --output $CINTENT_LOGS/$timestamp.speedscope.json \
+            --pid $run_pid \
+            --rate 100 \
+            --subprocesses
+            ) &
+  
+            # Wait for run to start (or timeout)
             timeout_time=60
             start_time=$SECONDS
             current_time=$((SECONDS - start_time))
@@ -159,7 +165,7 @@ jobs:
           BASH_WRAPPER_EOF
           chmod +x ${{ env.CINTENT_BASH }}
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
-
+        
       - name: Run Test Commands (REMOVE LATER)
         if: ${{ runner.os == 'Linux' }}
         shell: bash
