@@ -113,12 +113,18 @@ jobs:
               echo "strace failed to start!" 1>&2
               exit 1
             fi
-  
-            # Start the py-spy wrapper
-            exec python3 $CINTENT_PY_SPY "$@"
+            exec py-spy record \
+            --duration unlimited \
+            --format speedscope \
+            --function \
+            --idle \
+            --output $CINTENT_LOGS/$timestamp.speedscope.json \
+            --rate 100 \
+            --subprocesses \
+            -- python3 $CINTENT_PY_SPY "$@"
             ) &
             run_pid=$!
-  
+            
             # Start strace and output its entries to the strace log
             (
             sudo strace \
@@ -131,22 +137,6 @@ jobs:
             -ttt \
             -z
             ) &
-
-            # Start py-spy and output its entries to the speedscope log
-            ps -ef
-            (
-            py-spy record \
-            --duration unlimited \
-            --format speedscope \
-            --function \
-            --idle \
-            --output $CINTENT_LOGS/$timestamp.speedscope.json \
-            --pid $run_pid \
-            --rate 100 \
-            --subprocesses
-            ) &
-
-            sleep 10
   
             # Wait for run to start (or timeout)
             timeout_time=60
