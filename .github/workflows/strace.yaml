@@ -128,7 +128,7 @@ jobs:
             -ttt \
             -z
             ) &
-  
+
             # Start py-spy and output its entries to the speedscope log
             (
             py-spy record \
@@ -141,6 +141,8 @@ jobs:
             --rate 100 \
             --subprocesses
             ) &
+
+            sleep 10
   
             # Wait for run to start (or timeout)
             timeout_time=60
