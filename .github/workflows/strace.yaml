@@ -119,7 +119,7 @@ jobs:
             --output $CINTENT_LOGS/$timestamp.speedscope.json \
             --rate 100 \
             --subprocesses \
-            -- python3 $CINTENT_PY_SPY /bin/bash "$@"
+            -- python3 $CINTENT_PY_SPY "$@"
             ) &
             run_pid=$!
   
