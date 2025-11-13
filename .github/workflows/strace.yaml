@@ -133,6 +133,7 @@ jobs:
             ) &
 
             # Start py-spy and output its entries to the speedscope log
+            ps -ef | grep python
             (
             py-spy record \
             --duration unlimited \
