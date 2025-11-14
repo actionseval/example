@@ -36,7 +36,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          pipx install py-spy
+          sudo pipx install py-spy
   
       - name: Apply Bash Wrapper on Linux
         if: ${{ runner.os == 'Linux' }}
