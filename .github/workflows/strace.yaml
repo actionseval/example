@@ -145,7 +145,6 @@ jobs:
             fi
 
             # Start py-spy and output its entries to the speedscope log
-            (
             py-spy record \
             --duration unlimited \
             --format speedscope \
@@ -155,7 +154,6 @@ jobs:
             --pid $run_pid \
             --rate 100 \
             --subprocesses
-            ) &
             
             # Wait for the run to finish
             wait $run_pid
