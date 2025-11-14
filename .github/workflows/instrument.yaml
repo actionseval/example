@@ -10,12 +10,15 @@ jobs:
 
       - name: Install Pyinstrument
         run: |
-          pipx install pyinstrument
-        
-      - name: Run Pyinstrument
-        run: |
-          pyinstrument --renderer=pyisession --outfile=TIMESTAMP.pyisession test.py
+          pipx install py-spy
 
-      - name: Env
+      - name: Run Test Commands
         run: |
-          env
+          py-spy record \
+          --duration unlimited \
+          --format speedscope \
+          --function \
+          --idle \
+          --rate 100 \
+          --subprocesses \
+          -- python3 test.py
