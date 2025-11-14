@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set Environmental Variables on Linux
         if: ${{ runner.os == 'Linux' }}
         shell: bash
@@ -50,9 +50,8 @@ jobs:
           import subprocess
           import time
           args = ['/bin/bash'] + sys.argv[1:]
-          time.sleep(15)
+          time.sleep(10)
           subprocess.run(args)
-          time.sleep(15)
           PY_SPY_WRAPPER_EOF
           
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
@@ -113,18 +112,10 @@ jobs:
               echo "strace failed to start!" 1>&2
               exit 1
             fi
-            exec py-spy record \
-            --duration unlimited \
-            --format speedscope \
-            --function \
-            --idle \
-            --output $CINTENT_LOGS/$timestamp.speedscope.json \
-            --rate 100 \
-            --subprocesses \
-            -- python3 $CINTENT_PY_SPY "$@"
+            exec python3 $CINTENT_PY_SPY "$@"
             ) &
             run_pid=$!
-            
+  
             # Start strace and output its entries to the strace log
             (
             sudo strace \
@@ -137,7 +128,7 @@ jobs:
             -ttt \
             -z
             ) &
-  
+
             # Wait for run to start (or timeout)
             timeout_time=60
             start_time=$SECONDS
@@ -152,6 +143,19 @@ jobs:
               echo "run failed to start!" 1>&2
               exit 1
             fi
+
+            # Start py-spy and output its entries to the speedscope log
+            (
+            py-spy record \
+            --duration unlimited \
+            --format speedscope \
+            --function \
+            --idle \
+            --output $CINTENT_LOGS/$timestamp.speedscope.json \
+            --pid $run_pid \
+            --rate 100 \
+            --subprocesses
+            ) &
             
             # Wait for the run to finish
             wait $run_pid
@@ -161,7 +165,7 @@ jobs:
           BASH_WRAPPER_EOF
           chmod +x ${{ env.CINTENT_BASH }}
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
-        
+
       - name: Run Test Commands (REMOVE LATER)
         if: ${{ runner.os == 'Linux' }}
         shell: bash
