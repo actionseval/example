@@ -112,17 +112,7 @@ jobs:
               echo "strace failed to start!" 1>&2
               exit 1
             fi
-            ARGUMENTS="$@"
-            echo python3 $CINTENT_PY_SPY $ARGUMENTS
-            exec py-spy record \
-            --duration unlimited \
-            --format speedscope \
-            --function \
-            --idle \
-            --output $timestamp.speedscope.json \
-            --rate 100 \
-            --subprocesses \
-            -- python3 $CINTENT_PY_SPY $ARGUMENTS
+            exec python3 $CINTENT_PY_SPY $ARGUMENTS
             ) &
             run_pid=$!
   
@@ -155,6 +145,7 @@ jobs:
             fi
             
             # Wait for the run to finish
+            ps -ef
             wait $run_pid
           else
             /bin/bash "$@"
