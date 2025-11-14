@@ -147,8 +147,7 @@ jobs:
             # Wait for the run to finish
             ps -ef
             echo $run_pid
-            (
-            py-spy record \
+            sudo py-spy record \
             --duration unlimited \
             --format speedscope \
             --function \
@@ -156,8 +155,7 @@ jobs:
             --output $CINTENT_LOGS/$timestamp.speedscope.json \
             --pid $run_pid \
             --rate 100 \
-            --subprocesses
-            ) &
+            --subprocesses &
             echo $run_pid
             wait $run_pid
           else
