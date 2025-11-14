@@ -20,5 +20,6 @@ jobs:
           --function \
           --idle \
           --rate 100 \
+          --output test.json \
           --subprocesses \
           -- python3 test.py
