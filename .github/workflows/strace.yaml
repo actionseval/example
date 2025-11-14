@@ -146,6 +146,7 @@ jobs:
             
             # Wait for the run to finish
             ps -ef
+            echo $run_pid
             wait $run_pid
           else
             /bin/bash "$@"
