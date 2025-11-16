@@ -151,7 +151,7 @@ jobs:
             echo $run_pid
             ps -ef
             echo $run_pid
-            py-spy record \
+            sudo py-spy record \
             --duration unlimited \
             --format speedscope \
             --function \
