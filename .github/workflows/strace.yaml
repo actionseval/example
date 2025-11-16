@@ -60,12 +60,7 @@ jobs:
           py-spy record \
           --duration unlimited \
           --format speedscope \
-          --function \
-          --idle \
           --output $speedscope_log \
-          --rate 100 \
-          --pid $py_run_pid \
-          --subprocesses \
           -- /usr/bin/python3 "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
