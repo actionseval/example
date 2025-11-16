@@ -25,10 +25,13 @@ jobs:
           CINTENT_LOGS=/home/runner/cintent/log
           echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
           mkdir -p $CINTENT_LOGS
-  
-          CINTENT_PY_SPY=/home/runner/cintent/bin/py_spy.py
-          echo "CINTENT_PY_SPY=$CINTENT_PY_SPY" >> $GITHUB_ENV
-  
+
+          CINTENT_PY=/home/runner/cintent/bin/python
+          echo "CINTENT_PY=$CINTENT_PY" >> $GITHUB_ENV
+
+          CINTENT_PY3=/home/runner/cintent/bin/python3
+          echo "CINTENT_PY3=$CINTENT_PY3" >> $GITHUB_ENV
+
           CINTENT_STEP_ID=0
           echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
   
@@ -36,8 +39,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          pip install py-spy
-          sudo pip install py-spy
+          pipx install py-spy
   
       - name: Apply Bash Wrapper on Linux
         if: ${{ runner.os == 'Linux' }}
@@ -46,28 +48,41 @@ jobs:
           CINTENT_MATRIX="${{ toJson(matrix) }}"
           echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
   
-          cat << 'PY_SPY_WRAPPER_EOF' > ${{ env.CINTENT_PY_SPY }}
-          import sys
-          import subprocess
-          import time
-          print('sleeping...')
-          time.sleep(20)
-          print('awake!')
-          args = ['/bin/bash'] + sys.argv[1:]
-          subprocess.run(args)
-          PY_SPY_WRAPPER_EOF
-          
-          cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
+          cat << 'PY_WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
-  
-          if [[ -z "${CINTENT_IS_TRACING_RUN}" ]]; then
-            export CINTENT_IS_TRACING_RUN=true
+          if [[ -z "${CINTENT_IS_TRACING_PY}" ]]; then
+            export CINTENT_IS_TRACING_PY=true
   
             # Define the log paths
             timestamp=$(date +%s%N)
-            metadata_log=$CINTENT_LOGS/$timestamp.metadata
-            execsnoop_log=$CINTENT_LOGS/$timestamp.execsnoop
-            strace_log=$CINTENT_LOGS/$timestamp.strace
+            speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
+  
+            # Execute and trace with py-spy
+            py-spy record \
+            --duration unlimited \
+            --format speedscope \
+            --function \
+            --idle \
+            --output $speedscope_log \
+            --rate 100 \
+            --subprocesses \
+            -- /usr/bin/python3 "$@"
+          else
+            /usr/bin/python3 "$@"
+          fi
+          PY_WRAPPER_EOF
+          cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
+          
+          cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
+          #!/bin/bash
+          if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
+            export CINTENT_IS_TRACING_BASH=true
+  
+            # Define the log paths
+            timestamp=$(date +%s%N)
+            metadata_log=$CINTENT_LOGS/$timestamp.metadata.txt
+            execsnoop_log=$CINTENT_LOGS/$timestamp.execsnoop.txt
+            strace_log=$CINTENT_LOGS/$timestamp.strace.txt
             
             # Create the metadata log
             CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
@@ -115,7 +130,7 @@ jobs:
               echo "strace failed to start!" 1>&2
               exit 1
             fi
-            exec python3 $CINTENT_PY_SPY "$@"
+            exec /bin/bash "$@"
             ) &
             run_pid=$!
   
@@ -146,20 +161,6 @@ jobs:
               echo "run failed to start!" 1>&2
               exit 1
             fi
-
-            sleep 10
-            echo $run_pid
-            ps -ef
-            echo $run_pid
-            sudo py-spy record \
-            --duration unlimited \
-            --format speedscope \
-            --function \
-            --idle \
-            --output $CINTENT_LOGS/$timestamp.speedscope.json \
-            --pid $run_pid \
-            --rate 100 \
-            --subprocesses &
             
             # Wait for the run to finish
             wait $run_pid
