@@ -36,7 +36,6 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          pip install py-spy
           sudo pip install py-spy
   
       - name: Apply Bash Wrapper on Linux
@@ -153,7 +152,7 @@ jobs:
             echo $run_pid
             # sudo py-spy record --pid $run_pid &
             
-            py-spy record \
+            sudo py-spy record \
             --duration unlimited \
             --format speedscope \
             --function \
@@ -161,7 +160,7 @@ jobs:
             --output $CINTENT_LOGS/$timestamp.speedscope.json \
             --pid $run_pid \
             --rate 100 \
-            --subprocesses
+            --subprocesses &
             
             # Wait for the run to finish
             wait $run_pid
