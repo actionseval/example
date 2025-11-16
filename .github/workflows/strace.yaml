@@ -39,6 +39,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
+          sudo pip install pyinstrument
           pip install pyinstrument
   
       - name: Apply Bash Wrapper on Linux
