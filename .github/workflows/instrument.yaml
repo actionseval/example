@@ -10,7 +10,7 @@ jobs:
 
       - name: Install Pyinstrument
         run: |
-          pipx install py-spy
+          pip install py-spy
 
       - name: Run Test Commands
         run: |
@@ -22,4 +22,8 @@ jobs:
           --rate 100 \
           --output test.json \
           --subprocesses \
-          -- python3 test.py
+          -- /usr/bin/python3 test.py
+
+      - name: Run Test Commands
+        run: |
+          cat test.json
