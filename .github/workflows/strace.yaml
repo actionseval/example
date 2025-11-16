@@ -56,18 +56,21 @@ jobs:
           timestamp=$(date +%s%N)
           speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
 
-          echo "$@" >> $speedscope_log
+            ( 
+            exec /usr/bin/python3 "$@"
+            ) &
+            py_run_pid=$!
 
-          # # Execute and trace with py-spy
-          # py-spy record \
-          # --duration unlimited \
-          # --format speedscope \
-          # --function \
-          # --idle \
-          # --output $speedscope_log \
-          # --rate 100 \
-          # --subprocesses \
-          # -- /usr/bin/python3 "$@"
+          # Execute and trace with py-spy
+          py-spy record \
+          --duration unlimited \
+          --format speedscope \
+          --function \
+          --idle \
+          --output $speedscope_log \
+          --rate 100 \
+          --pid $py_run_pid \
+          --subprocesses
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           chmod +x ${{ env.CINTENT_PY }}
@@ -178,8 +181,8 @@ jobs:
           python3 test.py
           python3 ignore.py
       
-      - uses: actions/upload-artifact@v4
-        if: ${{ runner.os == 'Linux' }}
-        with:
-          name: ${{ env.CINTENT_ARTIFACT_NAME }}
-          path: ${{ env.CINTENT_LOGS }}
+      # - uses: actions/upload-artifact@v4
+      #   if: ${{ runner.os == 'Linux' }}
+      #   with:
+      #     name: ${{ env.CINTENT_ARTIFACT_NAME }}
+      #     path: ${{ env.CINTENT_LOGS }}
