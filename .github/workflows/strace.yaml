@@ -57,7 +57,7 @@ jobs:
           speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
 
           # Execute and trace with py-spy
-          py-spy record \
+          sudo py-spy record \
           --duration unlimited \
           --format speedscope \
           --output $speedscope_log \
