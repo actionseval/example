@@ -14,3 +14,9 @@ jobs:
         run: |
           python3 test.py
           python3 ignore.py
+        
+      - uses: actions/upload-artifact@v4
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          name: ${{ env.CINTENT_ARTIFACT_NAME }}
+          path: ${{ env.CINTENT_LOGS }}
