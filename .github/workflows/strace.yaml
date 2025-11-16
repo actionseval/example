@@ -51,12 +51,13 @@ jobs:
           cat << 'PY_WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
 
+          echo "HELLO WORLD"
+
           # Define the log paths
           timestamp=$(date +%s%N)
           speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
 
           # Execute and trace with py-spy
-          ARGUMENTS="$@"
           py-spy record \
           --duration unlimited \
           --format speedscope \
@@ -65,7 +66,7 @@ jobs:
           --output $speedscope_log \
           --rate 100 \
           --subprocesses \
-          -- /usr/bin/python3 $ARGUMENTS
+          -- /usr/bin/python3 "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           
