@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Set Environmental Variables on Linux
         if: ${{ runner.os == 'Linux' }}
         shell: bash
@@ -25,13 +25,13 @@ jobs:
           CINTENT_LOGS=/home/runner/cintent/log
           echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
           mkdir -p $CINTENT_LOGS
-
+          
           CINTENT_PY=/home/runner/cintent/bin/python
           echo "CINTENT_PY=$CINTENT_PY" >> $GITHUB_ENV
-
+  
           CINTENT_PY3=/home/runner/cintent/bin/python3
           echo "CINTENT_PY3=$CINTENT_PY3" >> $GITHUB_ENV
-
+  
           CINTENT_STEP_ID=0
           echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
   
@@ -39,8 +39,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          sudo pip install py-spy pyinstrument
-          pip install py-spy pyinstrument
+          pip install pyinstrument
   
       - name: Apply Bash Wrapper on Linux
         if: ${{ runner.os == 'Linux' }}
@@ -49,42 +48,34 @@ jobs:
           CINTENT_MATRIX="${{ toJson(matrix) }}"
           echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
   
+  
           cat << 'PY_WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
-
+  
           # Define the log paths
           timestamp=$(date +%s%N)
-          speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
-
-          # Execute and trace with py-spy
-          # sudo py-spy record \
-          # --duration unlimited \
-          # --format speedscope \
-          # --output $speedscope_log \
-          # -- /usr/bin/python3 "$@"
-
-          # Execute and trace with pyinstrument
+          pyisession_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.pyisession
+          
+          # Trace with Pyinstrument
           pyinstrument \
-          -o $speedscope_log \
+          -o $pyisession_log \
           -r pyisession \
-          -t \
-          --show-all \
-          "$@"
+          "$@"          
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
-          chmod +x ${{ env.CINTENT_PY }}
-          chmod +x ${{ env.CINTENT_PY3 }}
           
+  
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
+  
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
             export CINTENT_IS_TRACING_BASH=true
   
             # Define the log paths
             timestamp=$(date +%s%N)
-            metadata_log=$CINTENT_LOGS/$timestamp.metadata.txt
-            execsnoop_log=$CINTENT_LOGS/$timestamp.execsnoop.txt
-            strace_log=$CINTENT_LOGS/$timestamp.strace.txt
+            metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
+            execsnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.execsnoop.txt
+            strace_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.strace.txt
             
             # Create the metadata log
             CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
@@ -178,7 +169,7 @@ jobs:
         shell: bash
         run: |
           python3 test.py
-          # python3 ignore.py
+          python3 ignore.py
       
       - uses: actions/upload-artifact@v4
         if: ${{ runner.os == 'Linux' }}
