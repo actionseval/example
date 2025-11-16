@@ -150,7 +150,6 @@ jobs:
             echo $run_pid
             ps -ef
             echo $run_pid
-            # sudo py-spy record --pid $run_pid &
             
             sudo py-spy record \
             --duration unlimited \
