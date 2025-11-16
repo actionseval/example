@@ -8,22 +8,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Pyinstrument
-        run: |
-          pip install py-spy
+      - uses: JavidDitty/setup-cintent@f93b37390b45c5eb5acb4b88887a193199243c03
 
       - name: Run Test Commands
         run: |
-          py-spy record \
-          --duration unlimited \
-          --format speedscope \
-          --function \
-          --idle \
-          --rate 100 \
-          --output test.json \
-          --subprocesses \
-          -- /usr/bin/python3 test.py
-
-      - name: Run Test Commands
-        run: |
-          cat test.json
+          python3 test.py
+          python3 ignore.py
