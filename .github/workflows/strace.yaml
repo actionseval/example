@@ -147,11 +147,12 @@ jobs:
               exit 1
             fi
 
-            sleep 5
+            sleep 20
             echo $run_pid
             ps -ef
             echo $run_pid
-            
+
+            (
             py-spy record \
             --duration unlimited \
             --format speedscope \
@@ -160,7 +161,8 @@ jobs:
             --output $CINTENT_LOGS/$timestamp.speedscope.json \
             --pid $run_pid \
             --rate 100 \
-            --subprocesses &
+            --subprocesses 
+            ) &
             
             # Wait for the run to finish
             wait $run_pid
