@@ -56,7 +56,8 @@ jobs:
           timestamp=$(date +%s%N)
           speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
 
-          "$@" >> $speedscope_log
+          X="$@"
+          $X >> $speedscope_log
 
           # # Execute and trace with py-spy
           # py-spy record \
