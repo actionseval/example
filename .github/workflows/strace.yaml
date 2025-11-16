@@ -64,7 +64,12 @@ jobs:
           # -- /usr/bin/python3 "$@"
 
           # Execute and trace with pyinstrument
-          pyinstrument -r speedscope -t -o $speedscope_log --show-all "$@"
+          pyinstrument \
+          -o $speedscope_log \
+          -r pyisession \
+          -t \
+          --show-all \
+          "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           chmod +x ${{ env.CINTENT_PY }}
