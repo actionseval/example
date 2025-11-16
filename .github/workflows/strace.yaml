@@ -53,20 +53,20 @@ jobs:
 
           echo "some data for the file" >> $CINTENT_LOGS/place.txt
           
-          # Define the log paths
-          timestamp=$(date +%s%N)
-          speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
+          # # Define the log paths
+          # timestamp=$(date +%s%N)
+          # speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
 
-          # Execute and trace with py-spy
-          py-spy record \
-          --duration unlimited \
-          --format speedscope \
-          --function \
-          --idle \
-          --output $speedscope_log \
-          --rate 100 \
-          --subprocesses \
-          -- /usr/bin/python3 "$@"
+          # # Execute and trace with py-spy
+          # py-spy record \
+          # --duration unlimited \
+          # --format speedscope \
+          # --function \
+          # --idle \
+          # --output $speedscope_log \
+          # --rate 100 \
+          # --subprocesses \
+          # -- /usr/bin/python3 "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           chmod +x ${{ env.CINTENT_PY }}
