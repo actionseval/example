@@ -39,8 +39,8 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          sudo pip install py-spy
-          pip install py-spy
+          sudo pip install py-spy pyinstrument
+          pip install py-spy pyinstrument
   
       - name: Apply Bash Wrapper on Linux
         if: ${{ runner.os == 'Linux' }}
@@ -57,11 +57,14 @@ jobs:
           speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
 
           # Execute and trace with py-spy
-          sudo py-spy record \
-          --duration unlimited \
-          --format speedscope \
-          --output $speedscope_log \
-          -- /usr/bin/python3 "$@"
+          # sudo py-spy record \
+          # --duration unlimited \
+          # --format speedscope \
+          # --output $speedscope_log \
+          # -- /usr/bin/python3 "$@"
+
+          # Execute and trace with pyinstrument
+          pyinstrument -r speedscope -t --show-all "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           chmod +x ${{ env.CINTENT_PY }}
