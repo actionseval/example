@@ -69,6 +69,8 @@ jobs:
           #!/bin/bash
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
             export CINTENT_IS_TRACING_BASH=true
+            CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
+            echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
             
             # Define the log paths
             timestamp=$(date +%s%N)
@@ -77,8 +79,6 @@ jobs:
             strace_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.strace.txt
             
             # Create the metadata log
-            CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
-            echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
             echo -en \
             "repository = $GITHUB_REPOSITORY\n"\
             "branch = $GITHUB_REF_NAME\n"\
