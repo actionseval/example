@@ -51,8 +51,8 @@ jobs:
           cat << 'PY_WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
 
-          echo "HELLO WORLD"
-
+          echo "some data for the file" >> $CINTENT_LOGS/place.txt
+          
           # Define the log paths
           timestamp=$(date +%s%N)
           speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
@@ -69,6 +69,8 @@ jobs:
           -- /usr/bin/python3 "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
+          chmod +x ${{ env.CINTENT_PY }}
+          chmod +x ${{ env.CINTENT_PY3 }}
           
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
