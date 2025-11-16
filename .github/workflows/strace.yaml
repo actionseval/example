@@ -151,7 +151,7 @@ jobs:
             echo $run_pid
             ps -ef
             echo $run_pid
-            sudo py-spy record --pid $run_pid &
+            sudo py-spy record --subprocesses --pid $run_pid &
             
             # Wait for the run to finish
             wait $run_pid
