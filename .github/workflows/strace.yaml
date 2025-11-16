@@ -64,7 +64,7 @@ jobs:
           # -- /usr/bin/python3 "$@"
 
           # Execute and trace with pyinstrument
-          pyinstrument -r speedscope -t --show-all "$@"
+          pyinstrument -r speedscope -t -o $speedscope_log --show-all "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           chmod +x ${{ env.CINTENT_PY }}
@@ -175,8 +175,8 @@ jobs:
           python3 test.py
           # python3 ignore.py
       
-      # - uses: actions/upload-artifact@v4
-      #   if: ${{ runner.os == 'Linux' }}
-      #   with:
-      #     name: ${{ env.CINTENT_ARTIFACT_NAME }}
-      #     path: ${{ env.CINTENT_LOGS }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          name: ${{ env.CINTENT_ARTIFACT_NAME }}
+          path: ${{ env.CINTENT_LOGS }}
