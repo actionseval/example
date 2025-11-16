@@ -49,7 +49,9 @@ jobs:
           import sys
           import subprocess
           import time
+          print('sleeping...')
           time.sleep(20)
+          print('awake!')
           args = ['/bin/bash'] + sys.argv[1:]
           subprocess.run(args)
           PY_SPY_WRAPPER_EOF
@@ -144,6 +146,7 @@ jobs:
               exit 1
             fi
 
+            sleep 10
             echo $run_pid
             ps -ef
             echo $run_pid
