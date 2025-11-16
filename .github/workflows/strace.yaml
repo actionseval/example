@@ -56,11 +56,6 @@ jobs:
           timestamp=$(date +%s%N)
           speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
 
-            ( 
-            exec /usr/bin/python3 "$@"
-            ) &
-            py_run_pid=$!
-
           # Execute and trace with py-spy
           py-spy record \
           --duration unlimited \
@@ -70,7 +65,8 @@ jobs:
           --output $speedscope_log \
           --rate 100 \
           --pid $py_run_pid \
-          --subprocesses
+          --subprocesses \
+          -- /usr/bin/python3 "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           chmod +x ${{ env.CINTENT_PY }}
@@ -179,7 +175,7 @@ jobs:
         shell: bash
         run: |
           python3 test.py
-          python3 ignore.py
+          # python3 ignore.py
       
       # - uses: actions/upload-artifact@v4
       #   if: ${{ runner.os == 'Linux' }}
