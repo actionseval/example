@@ -28,10 +28,10 @@ jobs:
           
           CINTENT_PY=/home/runner/cintent/bin/python
           echo "CINTENT_PY=$CINTENT_PY" >> $GITHUB_ENV
-  
+          
           CINTENT_PY3=/home/runner/cintent/bin/python3
           echo "CINTENT_PY3=$CINTENT_PY3" >> $GITHUB_ENV
-  
+          
           CINTENT_STEP_ID=0
           echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
   
@@ -48,30 +48,31 @@ jobs:
         run: |
           CINTENT_MATRIX="${{ toJson(matrix) }}"
           echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
-  
-  
+          
+          
           cat << 'PY_WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
-  
+          
           # Define the log paths
           timestamp=$(date +%s%N)
           pyisession_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.pyisession
           
           # Trace with Pyinstrument
-          pyinstrument \
-          -o $pyisession_log \
-          -r pyisession \
-          "$@"          
+          pyinstrument -r speedscope -t -o $pyisession_log --show-all "$@"
+          # pyinstrument \
+          # -o $pyisession_log \
+          # -r pyisession \
+          # "$@"          
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           
-  
+          
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
-  
+          
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
             export CINTENT_IS_TRACING_BASH=true
-  
+            
             # Define the log paths
             timestamp=$(date +%s%N)
             metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
@@ -97,7 +98,7 @@ jobs:
             
             # Start execsnoop and pipe its output to the execsnoop log
             sudo execsnoop-bpfcc -qx >> "$execsnoop_log" 2> /dev/null &
-  
+            
             # Wait for execsnoop to start tracing (or timeout)
             timeout_time=60
             start_time=$SECONDS
@@ -110,7 +111,7 @@ jobs:
               echo "execsnoop failed to start!" 1>&2
               exit 1
             fi
-  
+            
             # Start the run (after strace attaches)
             ( 
             timeout_time=60
@@ -127,7 +128,7 @@ jobs:
             exec /bin/bash "$@"
             ) &
             run_pid=$!
-  
+            
             # Start strace and output its entries to the strace log
             (
             sudo strace \
@@ -140,7 +141,7 @@ jobs:
             -ttt \
             -z
             ) &
-  
+            
             # Wait for run to start (or timeout)
             timeout_time=60
             start_time=$SECONDS
