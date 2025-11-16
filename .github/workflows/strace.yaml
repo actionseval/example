@@ -51,11 +51,13 @@ jobs:
           cat << 'PY_WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
 
-          echo "some data for the file" >> $CINTENT_LOGS/place.txt
+          # Define the log paths
+          timestamp=$(date +%s%N)
+          speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
+
           
-          # # Define the log paths
-          # timestamp=$(date +%s%N)
-          # speedscope_log=$CINTENT_LOGS/$timestamp.speedscope.json
+          echo "some data for the file" >> $speedscope_log
+          
 
           # # Execute and trace with py-spy
           # py-spy record \
