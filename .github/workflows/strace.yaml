@@ -151,7 +151,15 @@ jobs:
             echo $run_pid
             ps -ef
             echo $run_pid
-            sudo py-spy record --subprocesses --pid $run_pid &
+            py-spy record \
+            --duration unlimited \
+            --format speedscope \
+            --function \
+            --idle \
+            --output $CINTENT_LOGS/$timestamp.speedscope.json \
+            --pid $run_pid \
+            --rate 100 \
+            --subprocesses &
             
             # Wait for the run to finish
             wait $run_pid
