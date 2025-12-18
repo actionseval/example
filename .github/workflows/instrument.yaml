@@ -15,8 +15,8 @@ jobs:
   
       - name: Set Command Wrappers on Linux
         run: |  
-          sudo mkdir /home/runner/cintent
-          sudo mkdir /home/runner/cintent-bin
+          mkdir /home/runner/cintent
+          mkdir /home/runner/cintent-bin
           sudo cp /usr/bin/python /home/runner/cintent/python
           sudo cp /usr/bin/python3 /home/runner/cintent/python3
 
