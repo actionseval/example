@@ -8,19 +8,86 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set Environmental Variables on Linux
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          CINTENT_ARTIFACT_NAME="cintent_log"
+          echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
+  
+          CINTENT_BASH=/home/runner/cintent/bin/bash
+          echo "CINTENT_BASH=$CINTENT_BASH" >> $GITHUB_ENV
+  
+          CINTENT_BIN=/home/runner/cintent/bin
+          echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
+          mkdir -p $CINTENT_BIN
+  
+          CINTENT_BLACK=/home/runner/cintent/bin/black
+          echo "CINTENT_BLACK=$CINTENT_BLACK" >> $GITHUB_ENV
+  
+          CINTENT_FLAKE8=/home/runner/cintent/bin/flake8
+          echo "CINTENT_FLAKE8=$CINTENT_FLAKE8" >> $GITHUB_ENV
+  
+          CINTENT_LOGS=/home/runner/cintent/log
+          echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
+          mkdir -p $CINTENT_LOGS
+  
+          CINTENT_MYPY=/home/runner/cintent/bin/mypy
+          echo "CINTENT_MYPY=$CINTENT_MYPY" >> $GITHUB_ENV
+  
+          CINTENT_PY=/home/runner/cintent/bin/python
+          echo "CINTENT_PY=$CINTENT_PY" >> $GITHUB_ENV
+  
+          CINTENT_PY3=/home/runner/cintent/bin/python3
+          echo "CINTENT_PY3=$CINTENT_PY3" >> $GITHUB_ENV
+  
+          CINTENT_PYLINT=/home/runner/cintent/bin/pylint
+          echo "CINTENT_PYLINT=$CINTENT_PYLINT" >> $GITHUB_ENV
+  
+          CINTENT_PYTEST=/home/runner/cintent/bin/pytest
+          echo "CINTENT_PYTEST=$CINTENT_PYTEST" >> $GITHUB_ENV
+  
+          CINTENT_STEP_ID=0
+          echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
+  
+          CINTENT_TOX=/home/runner/cintent/bin/tox
+          echo "CINTENT_TOX=$CINTENT_TOX" >> $GITHUB_ENV
+  
+          CINTENT_UV=/home/runner/cintent/bin/uv
+          echo "CINTENT_UV=$CINTENT_UV" >> $GITHUB_ENV
+  
+      - name: Set Command Wrappers on Linux
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |  
+          # Create python/python3 wrapper
+          cat << 'PY_WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
+          #!/bin/bash
+          timestamp=$(date +%s%N)
+          pyinstrument_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.pyisession.json
+          py-spy record --full-filenames --output /home/runner/instrument.log --format speedscope --subprocesses --function -- "$@"
+          PY_WRAPPER_EOF
+          cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
+          chmod +x ${{ env.CINTENT_PY }}
+          chmod +x ${{ env.CINTENT_PY3 }}
+
       - name: Install Dependencies
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
         run: |
           sudo pip install py-spy pyinstrument
           pip install py-spy pyinstrument
 
       - name: Run Test Commands
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
         run: |
-          # python3 test.py
-          # python3 ignore.py
-          FILE="/home/runner/instrument.log"
-          py-spy record --full-filenames --output "$FILE" --format speedscope --subprocesses --function -- python3 test.py
+          python3 test.py
+          python3 ignore.py
 
       - name: Check if log exists
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
         run: |
           FILE="/home/runner/instrument.log"
           if [ -f "$FILE" ]; then
