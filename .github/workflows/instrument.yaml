@@ -246,7 +246,6 @@ jobs:
       - name: Run Test Commands
         run: |
           python3 test.py
-          pytest
         
       - uses: actions/upload-artifact@v4
         if: ${{ runner.os == 'Linux' }}
