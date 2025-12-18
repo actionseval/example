@@ -9,32 +9,265 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Dependencies
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
         run: |
-          sudo pip install py-spy pyinstrument
-          pip install py-spy pyinstrument
+          sudo pip install py-spy
+          pip install py-spy
+  
+      - name: Set Environmental Variables
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          CINTENT_ARTIFACT_NAME="cintent_log"
+          echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
+  
+          CINTENT_BASH=/home/runner/cintent/bin/bash
+          echo "CINTENT_BASH=$CINTENT_BASH" >> $GITHUB_ENV
+  
+          CINTENT_BIN=/home/runner/cintent/bin
+          echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
+          mkdir -p $CINTENT_BIN
+  
+          CINTENT_BLACK=/home/runner/cintent/bin/black
+          echo "CINTENT_BLACK=$CINTENT_BLACK" >> $GITHUB_ENV
+  
+          CINTENT_FLAKE8=/home/runner/cintent/bin/flake8
+          echo "CINTENT_FLAKE8=$CINTENT_FLAKE8" >> $GITHUB_ENV
+  
+          CINTENT_LOGS=/home/runner/cintent/log
+          echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
+          mkdir -p $CINTENT_LOGS
+  
+          CINTENT_MYPY=/home/runner/cintent/bin/mypy
+          echo "CINTENT_MYPY=$CINTENT_MYPY" >> $GITHUB_ENV
+  
+          CINTENT_PY=/home/runner/cintent/bin/python
+          echo "CINTENT_PY=$CINTENT_PY" >> $GITHUB_ENV
+  
+          CINTENT_PY3=/home/runner/cintent/bin/python3
+          echo "CINTENT_PY3=$CINTENT_PY3" >> $GITHUB_ENV
+  
+          CINTENT_PYLINT=/home/runner/cintent/bin/pylint
+          echo "CINTENT_PYLINT=$CINTENT_PYLINT" >> $GITHUB_ENV
+  
+          CINTENT_PYTEST=/home/runner/cintent/bin/pytest
+          echo "CINTENT_PYTEST=$CINTENT_PYTEST" >> $GITHUB_ENV
+  
+          CINTENT_STEP_ID=0
+          echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
+  
+          CINTENT_TEMP=/home/runner/cintent/temp
+          echo "CINTENT_TEMP=$CINTENT_TEMP" >> $GITHUB_ENV
+          mkdir -p $CINTENT_TEMP
+  
+          CINTENT_TOX=/home/runner/cintent/bin/tox
+          echo "CINTENT_TOX=$CINTENT_TOX" >> $GITHUB_ENV
+  
+          CINTENT_UV=/home/runner/cintent/bin/uv
+          echo "CINTENT_UV=$CINTENT_UV" >> $GITHUB_ENV
   
       - name: Set Command Wrappers on Linux
-        run: |  
-          mkdir /home/runner/cintent
-          mkdir /home/runner/cintent-bin
-          mkdir /home/runner/cintent-logs
-          sudo cp /usr/bin/python /home/runner/cintent/python
-          sudo cp /usr/bin/python3 /home/runner/cintent/python3
-
-          sudo rm /usr/bin/python
-          sudo rm /usr/bin/python3
-          cat << 'PY_WRAPPER_EOF' > /home/runner/cintent-bin/python
-          #!/bin/bash
-          output=/home/runner/cintent-logs/$(date +%s%N).pyisession.json
-          py-spy record --full-filenames --output "$output" --format speedscope --subprocesses --function -- /home/runner/cintent/python3 "$@"
-          PY_WRAPPER_EOF
-          sudo chmod +x /home/runner/cintent-bin/python
-          sudo cp /home/runner/cintent-bin/python /usr/bin/python
-          sudo cp /home/runner/cintent-bin/python /usr/bin/python3
-        
-      - name: Run Test Commands
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
         run: |
-          # python3 test.py
-          # python3 ignore.py
-          pip install pytest
-          pytest
+          # Save the current matrix configurations
+          echo "${{ toJson(matrix) }}" > matrix_context.json
+          CINTENT_MATRIX=$(cat matrix_context.json | tr -s '\n' ' ')
+          echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
+  
+          # Create bash wrapper
+          cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
+          #!/bin/bash
+          if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
+            export CINTENT_IS_TRACING_BASH=true
+            CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
+            echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
+            
+            # Define the log paths
+            timestamp=$(date +%s%N)
+            metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
+            execsnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.execsnoop.txt
+            strace_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.strace.txt
+            
+            # Create the metadata log
+            echo -en \
+            "repository = $GITHUB_REPOSITORY\n"\
+            "branch = $GITHUB_REF_NAME\n"\
+            "commit = $GITHUB_SHA\n"\
+            "workflow = ${GITHUB_WORKFLOW_REF%@*}\n"\
+            "run_number = $GITHUB_RUN_NUMBER\n"\
+            "run_attempt = $GITHUB_RUN_ATTEMPT\n"\
+            "workspace = $GITHUB_WORKSPACE\n"\
+            "job_id = $GITHUB_JOB\n"\
+            "matrix = $CINTENT_MATRIX\n"\
+            "step_id = $CINTENT_STEP_ID\n"\
+            > "$metadata_log"
+            sed -i 's/^[ ]*//' "$metadata_log"
+            
+            # Start execsnoop and pipe its output to the execsnoop log
+            sudo execsnoop-bpfcc -qx >> "$execsnoop_log" 2> /dev/null &
+  
+            # Wait for execsnoop to start tracing (or timeout)
+            timeout_time=60
+            start_time=$SECONDS
+            current_time=$((SECONDS - start_time))
+            until [[ -s "$execsnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
+              sleep 1
+              current_time=$((SECONDS - start_time))
+            done
+            if [[ ! -s "$execsnoop_log" ]]; then
+              echo "execsnoop failed to start!" 1>&2
+              exit 1
+            fi
+  
+            # Start the run (after strace attaches)
+            ( 
+            timeout_time=60
+            start_time=$SECONDS
+            current_time=$((SECONDS - start_time))
+            until [[ -s "$strace_log" || "$current_time" -gt "$timeout_time" ]]; do
+              sleep 1
+              current_time=$((SECONDS - start_time))
+            done
+            if [[ ! -s "$strace_log" ]]; then
+              echo "strace failed to start!" 1>&2
+              exit 1
+            fi
+            exec /bin/bash "$@"
+            ) &
+            run_pid=$!
+  
+            # Start strace and output its entries to the strace log
+            (
+            sudo strace \
+            -e decode-fds=path \
+            -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
+            -f \
+            -o "$strace_log" \
+            -p $run_pid \
+            -qqq \
+            -ttt \
+            -z
+            ) &
+  
+            # Wait for run to start (or timeout)
+            timeout_time=60
+            start_time=$SECONDS
+            current_time=$((SECONDS - start_time))
+            tracer_pid=$(cat /proc/$run_pid/status | grep -oP "(?<=TracerPid:).*")
+            until [[ "$tracer_pid" -ne 0 || "$current_time" -gt "$timeout_time" ]]; do
+              sleep 1
+              current_time=$((SECONDS - start_time))
+              tracer_pid=$(cat /proc/$run_pid/status | grep -oP "(?<=TracerPid:).*")
+            done
+            if [[ "$tracer_pid" -eq 0 ]]; then
+              echo "run failed to start!" 1>&2
+              exit 1
+            fi
+            
+            # Wait for the run to finish
+            wait $run_pid
+          else
+            /bin/bash "$@"
+          fi
+          BASH_WRAPPER_EOF
+          chmod +x ${{ env.CINTENT_BASH }}
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+  
+      - name: Create 'black' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          :
+  
+      - name: Create 'flake8' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          :
+  
+      - name: Create 'mypy' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          :
+  
+      - name: Create 'pylint' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          :
+  
+      - name: Create 'pytest' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          # Initialize the Paths
+          COMMAND_NAME="pytest"
+          COMMAND_PATH=$(which $COMMAND_NAME)
+          WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
+          
+          # Write the Wrapper
+          cat << 'WRAPPER_EOF' > $WRAPPER_PATH
+          #!/bin/bash
+          output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- python3 -m $COMMAND_NAME "$@"
+          WRAPPER_EOF
+          sudo chmod +x $WRAPPER_PATH
+  
+          # Apply the Wrapper
+          sudo rm $COMMAND_PATH
+          sudo cp $WRAPPER_PATH $COMMAND_PATH
+  
+      - name: Create 'python' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          # Initialize the Paths
+          COMMAND_NAME="python"
+          COMMAND_PATH=$(which $COMMAND_NAME)
+          BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
+          WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
+          
+          # Write the Wrapper
+          cat << 'WRAPPER_EOF' > $WRAPPER_PATH
+          #!/bin/bash
+          output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- $BIN_PATH "$@"
+          WRAPPER_EOF
+          sudo chmod +x $WRAPPER_PATH
+  
+          # Apply the Wrapper
+          sudo cp $COMMAND_PATH $BIN_PATH
+          sudo rm $COMMAND_PATH
+          sudo cp $WRAPPER_PATH $COMMAND_PATH
+  
+      - name: Create 'python3' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          # Initialize the Paths
+          COMMAND_NAME="python3"
+          COMMAND_PATH=$(which $COMMAND_NAME)
+          BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
+          WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
+          
+          # Write the Wrapper
+          cat << 'WRAPPER_EOF' > $WRAPPER_PATH
+          #!/bin/bash
+          output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- $BIN_PATH "$@"
+          WRAPPER_EOF
+          sudo chmod +x $WRAPPER_PATH
+  
+          # Apply the Wrapper
+          sudo cp $COMMAND_PATH $BIN_PATH
+          sudo rm $COMMAND_PATH
+          sudo cp $WRAPPER_PATH $COMMAND_PATH
+  
+      - name: Create 'tox' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          :
