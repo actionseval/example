@@ -30,10 +30,14 @@ jobs:
           
           echo "/home/runner/python" >> $GITHUB_PATH
           echo "PATH=/home/runner/python:$PATH" >> $GITHUB_ENV
+          export PATH=/home/runner/python:$PATH
+          export PATH=$PATH:/home/runner/python
           ln -sfn /home/runner/python python
           
           echo "/home/runner/python3" >> $GITHUB_PATH
           echo "PATH=/home/runner/python3:$PATH" >> $GITHUB_ENV
+          export PATH=/home/runner/python3:$PATH
+          export PATH=$PATH:/home/runner/python3
           ln -sfn /home/runner/python3 python3
 
           which -a python
