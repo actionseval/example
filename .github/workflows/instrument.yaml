@@ -105,6 +105,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
+          echo $BIN_PATH
           py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- $BIN_PATH "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
