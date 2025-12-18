@@ -159,11 +159,7 @@ jobs:
           BASH_WRAPPER_EOF
           chmod +x ${{ env.CINTENT_BASH }}
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
-  
-      - name: Create 'pytest' Wrapper
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
+
           # Initialize the Paths
           COMMAND_NAME="pytest"
           COMMAND_PATH=$(which $COMMAND_NAME)
@@ -181,10 +177,6 @@ jobs:
           sudo rm $COMMAND_PATH
           sudo cp $WRAPPER_PATH $COMMAND_PATH
   
-      - name: Create 'python' Wrapper
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
           # Initialize the Paths
           COMMAND_NAME="python"
           COMMAND_PATH=$(which $COMMAND_NAME)
@@ -203,11 +195,7 @@ jobs:
           sudo cp $COMMAND_PATH $BIN_PATH
           sudo rm $COMMAND_PATH
           sudo cp $WRAPPER_PATH $COMMAND_PATH
-  
-      - name: Create 'python3' Wrapper
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
+          
           # Initialize the Paths
           COMMAND_NAME="python3"
           COMMAND_PATH=$(which $COMMAND_NAME)
