@@ -27,10 +27,17 @@ jobs:
           cp /home/runner/python /home/runner/python3
           chmod +x /home/runner/python
           chmod +x /home/runner/python3
+          
           echo "/home/runner/python" >> $GITHUB_PATH
           echo "PATH=/home/runner/python:$PATH" >> $GITHUB_ENV
+          ln -sfn /home/runner/python python
+          
           echo "/home/runner/python3" >> $GITHUB_PATH
           echo "PATH=/home/runner/python3:$PATH" >> $GITHUB_ENV
+          ln -sfn /home/runner/python3 python3
+
+          which python
+          which python3
         
       - name: Run Test Commands
         run: |
