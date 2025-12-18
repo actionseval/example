@@ -36,10 +36,10 @@ jobs:
           echo "PATH=/home/runner/python3:$PATH" >> $GITHUB_ENV
           ln -sfn /home/runner/python3 python3
 
-          which python
-          which python3
+          which -a python
+          which -a python3
         
       - name: Run Test Commands
         run: |
-          which python
-          which python3
+          which -a python
+          which -a python3
