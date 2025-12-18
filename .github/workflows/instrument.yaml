@@ -18,28 +18,33 @@ jobs:
           # Create python/python3 wrapper
           cat << 'PY_WRAPPER_EOF' > /home/runner/python
           #!/bin/bash
-          timestamp=$(date +%s%N)
-          pyinstrument_log="/home/runner/instrument.log"
-          # py-spy record --full-filenames --output "/home/runner/instrument.log" --format speedscope --subprocesses --function -- "$@"
+          echo "=============="
           echo "$@"
+          echo "=============="
           PY_WRAPPER_EOF
-          chmod +x /home/runner/python
+
+          # Set permissions for python/python3 wrapper
           cp /home/runner/python /home/runner/python3
+          chmod +x /home/runner/python
+          chmod +x /home/runner/python3
           echo "/home/runner/python" >> $GITHUB_PATH
           echo "/home/runner/python3" >> $GITHUB_PATH
         
       - name: Run Test Commands
         run: |
-          # python3 test.py
-          # python3 ignore.py
-          which python
-          which python3
-
-      - name: Check if log exists
-        run: |
-          FILE="/home/runner/instrument.log"
+          FILE="/home/runner/python"
           if [ -f "$FILE" ]; then
               echo "$FILE exists and is a regular file."
           else
               echo "$FILE does not exist or is not a regular file."
           fi
+
+          FILE="/home/runner/python3"
+          if [ -f "$FILE" ]; then
+              echo "$FILE exists and is a regular file."
+          else
+              echo "$FILE does not exist or is not a regular file."
+          fi
+
+          which python
+          which python3
