@@ -77,12 +77,14 @@ jobs:
           COMMAND_PATH=$(which $COMMAND_NAME)
           BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
           WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
+
+          echo "$BIN_PATH"
           
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- $BIN_PATH "$@"
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- "$BIN_PATH" "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
   
@@ -105,8 +107,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          echo $BIN_PATH
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- $BIN_PATH "$@"
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- "$BIN_PATH" "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
   
@@ -128,7 +129,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- python3 -m $COMMAND_NAME "$@"
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- python3 -m "$COMMAND_NAME" "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
   
