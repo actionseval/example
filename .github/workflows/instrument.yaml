@@ -57,37 +57,30 @@ jobs:
           echo "CINTENT_UV=$CINTENT_UV" >> $GITHUB_ENV
   
       - name: Set Command Wrappers on Linux
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
         run: |  
           # Create python/python3 wrapper
           cat << 'PY_WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
+          echo "HERE!"
           timestamp=$(date +%s%N)
-          pyinstrument_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.pyisession.json
-          py-spy record --full-filenames --output /home/runner/instrument.log --format speedscope --subprocesses --function -- "$@"
+          pyinstrument_log="/home/runner/instrument.log"
+          py-spy record --full-filenames --output "$pyinstrument_log" --format speedscope --subprocesses --function -- "$@"
           PY_WRAPPER_EOF
           cp ${{ env.CINTENT_PY3 }} ${{ env.CINTENT_PY }}
           chmod +x ${{ env.CINTENT_PY }}
           chmod +x ${{ env.CINTENT_PY3 }}
 
       - name: Install Dependencies
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
         run: |
           sudo pip install py-spy pyinstrument
           pip install py-spy pyinstrument
 
       - name: Run Test Commands
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
         run: |
           python3 test.py
           python3 ignore.py
 
       - name: Check if log exists
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
         run: |
           FILE="/home/runner/instrument.log"
           if [ -f "$FILE" ]; then
