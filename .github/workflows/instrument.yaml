@@ -15,35 +15,21 @@ jobs:
   
       - name: Set Command Wrappers on Linux
         run: |  
-          # Create python/python3 wrapper
-          cat << 'PY_WRAPPER_EOF' > /home/runner/python
+          mkdir /home/runner/cintent
+          cp /usr/bin/python /home/runner/cintent/python
+          cp /usr/bin/python3 /home/runner/cintent/python3
+
+          cat << 'PY_WRAPPER_EOF' > /usr/bin/python
           #!/bin/bash
           echo "=============="
           echo "$@"
           echo "=============="
           PY_WRAPPER_EOF
-
-          # Set permissions for python/python3 wrapper
-          cp /home/runner/python /home/runner/python3
-          chmod +x /home/runner/python
-          chmod +x /home/runner/python3
-          
-          echo "/home/runner/python" >> $GITHUB_PATH
-          echo "PATH=/home/runner/python:$PATH" >> $GITHUB_ENV
-          export PATH=/home/runner/python:$PATH
-          export PATH=$PATH:/home/runner/python
-          ln -sfn /home/runner/python python
-          
-          echo "/home/runner/python3" >> $GITHUB_PATH
-          echo "PATH=/home/runner/python3:$PATH" >> $GITHUB_ENV
-          export PATH=/home/runner/python3:$PATH
-          export PATH=$PATH:/home/runner/python3
-          ln -sfn /home/runner/python3 python3
-
-          which -a python
-          which -a python3
+          cp /usr/bin/python /usr/bin/python3
+          chmod +x /usr/bin/python
+          chmod +x /usr/bin/python3
         
       - name: Run Test Commands
         run: |
-          which -a python
-          which -a python3
+          python3 test.py
+          python3 ignore.py
