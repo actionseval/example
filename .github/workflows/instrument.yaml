@@ -17,6 +17,7 @@ jobs:
         run: |  
           mkdir /home/runner/cintent
           mkdir /home/runner/cintent-bin
+          mkdir /home/runner/cintent-logs
           sudo cp /usr/bin/python /home/runner/cintent/python
           sudo cp /usr/bin/python3 /home/runner/cintent/python3
 
@@ -24,9 +25,8 @@ jobs:
           sudo rm /usr/bin/python3
           cat << 'PY_WRAPPER_EOF' > /home/runner/cintent-bin/python
           #!/bin/bash
-          echo "=============="
-          echo "$@"
-          echo "=============="
+          output=/home/runner/cintent-logs/$(date +%s%N).pyisession.json
+          py-spy record --full-filenames --output "$output" --format speedscope --subprocesses --function -- /home/runner/cintent/python3 "$@"
           PY_WRAPPER_EOF
           sudo chmod +x /home/runner/cintent-bin/python
           sudo cp /home/runner/cintent-bin/python /usr/bin/python
