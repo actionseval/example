@@ -14,6 +14,7 @@ jobs:
         run: |
           sudo pip install py-spy
           pip install py-spy
+          pip install pytest
   
       - name: Set Environmental Variables
         if: ${{ runner.os == 'Linux' }}
@@ -175,30 +176,6 @@ jobs:
           chmod +x ${{ env.CINTENT_BASH }}
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
-      - name: Create 'black' Wrapper
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
-          echo "SKIPPING..."
-  
-      - name: Create 'flake8' Wrapper
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
-          echo "SKIPPING..."
-  
-      - name: Create 'mypy' Wrapper
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
-          echo "SKIPPING..."
-  
-      - name: Create 'pylint' Wrapper
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
-          echo "SKIPPING..."
-  
       - name: Create 'pytest' Wrapper
         if: ${{ runner.os == 'Linux' }}
         shell: bash
@@ -265,12 +242,6 @@ jobs:
           sudo cp $COMMAND_PATH $BIN_PATH
           sudo rm $COMMAND_PATH
           sudo cp $WRAPPER_PATH $COMMAND_PATH
-  
-      - name: Create 'tox' Wrapper
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
-          echo "SKIPPING..."
 
       - name: Run Test Commands
         run: |
