@@ -15,19 +15,19 @@ jobs:
   
       - name: Set Command Wrappers on Linux
         run: |  
-          mkdir /home/runner/cintent
-          cp /usr/bin/python /home/runner/cintent/python
-          cp /usr/bin/python3 /home/runner/cintent/python3
+          sudo mkdir /home/runner/cintent
+          sudo cp /usr/bin/python /home/runner/cintent/python
+          sudo cp /usr/bin/python3 /home/runner/cintent/python3
 
-          cat << 'PY_WRAPPER_EOF' > /usr/bin/python
+          sudo cat << 'PY_WRAPPER_EOF' > /usr/bin/python
           #!/bin/bash
           echo "=============="
           echo "$@"
           echo "=============="
           PY_WRAPPER_EOF
-          cp /usr/bin/python /usr/bin/python3
-          chmod +x /usr/bin/python
-          chmod +x /usr/bin/python3
+          sudo cp /usr/bin/python /usr/bin/python3
+          sudo chmod +x /usr/bin/python
+          sudo chmod +x /usr/bin/python3
         
       - name: Run Test Commands
         run: |
