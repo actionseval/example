@@ -177,15 +177,14 @@ jobs:
             sed -i 's/^[ ]*//' "$metadata_log"
 
             # Start strace and output its entries to the strace log
-            sudo strace \
-            -D \
+            strace \
+            -DDD \
             -e decode-fds=path \
             -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
             -f \
             -o "$strace_log" \
             -qqq \
             -ttt \
-            -u runner \
             -z \
             /bin/bash "$@"
             
