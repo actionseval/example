@@ -77,8 +77,6 @@ jobs:
           BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
           WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
 
-          echo "Bin Path: $BIN_PATH"
-
           # Apply the Wrapper
           sudo cp $COMMAND_PATH $BIN_PATH
           
@@ -86,7 +84,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- "$BIN_PATH" "$@"
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- $BIN_PATH "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
           
@@ -103,8 +101,6 @@ jobs:
           BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
           WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
 
-          echo "Bin Path: $BIN_PATH"
-
           # Apply the Wrapper
           sudo cp $COMMAND_PATH $BIN_PATH
           
@@ -112,7 +108,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- "$BIN_PATH" "$@"
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- $BIN_PATH "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
           
@@ -127,15 +123,12 @@ jobs:
           COMMAND_NAME="pytest"
           COMMAND_PATH=$(which $COMMAND_NAME)
           WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
-
-          echo "Command Path: $COMMAND_PATH"
-          echo "Bin Path: $BIN_PATH"
           
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- python3 -m "$COMMAND_NAME" "$@"
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- python3 -m $COMMAND_NAME "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
 
@@ -145,6 +138,7 @@ jobs:
       - name: Run Test Commands
         run: |
           python3 ignore.py
+          pytest
         
       - uses: actions/upload-artifact@v4
         if: ${{ runner.os == 'Linux' }}
