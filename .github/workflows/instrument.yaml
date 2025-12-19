@@ -84,7 +84,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/bin/python "$@"
+          py-spy record --format speedscope --full-filenames --function --subprocesses -- /home/runner/cintent/bin/python "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
           
@@ -108,7 +108,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/bin/python3 "$@"
+          py-spy record --format speedscope --full-filenames --function --subprocesses -- /home/runner/cintent/bin/python3 "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
           
@@ -128,7 +128,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- python3 -m pytest "$@"
+          py-spy record --format speedscope --full-filenames --function --subprocesses -- python3 -m pytest "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
 
@@ -149,6 +149,7 @@ jobs:
           #!/bin/bash
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
             export CINTENT_IS_TRACING_BASH=true
+            echo "CINTENT_IS_TRACING_BASH=$CINTENT_IS_TRACING_BASH" >> $GITHUB_ENV
             CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
             echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
             
@@ -198,7 +199,10 @@ jobs:
             echo "start_time = $(date +%s)" >> $metadata_log
             /bin/bash "$@"
             echo "end_time = $(date +%s)" >> $metadata_log
+            unset CINTENT_IS_TRACING_BASH
+            echo "CINTENT_IS_TRACING_BASH=" >> $GITHUB_ENV
           else
+            echo "HERE"
             /bin/bash "$@"
           fi
           BASH_WRAPPER_EOF
