@@ -175,24 +175,26 @@ jobs:
             sed -i 's/^[ ]*//' "$metadata_log"
 
             # Start snooping tools and pipe their outputs to their logs
-            sudo execsnoop-bpfcc -qtx &>> "$execsnoop_log" &
-            sudo opensnoop-bpfcc -eT &>> "$opensnoop_log" &
-            sleep 20
+            sudo execsnoop-bpfcc -qtx > "$execsnoop_log" 2> /dev/null &
+            sudo opensnoop-bpfcc -eT -n python > "$opensnoop_log" 2> /dev/null &
         
             # Wait for snooping tools to start tracing (or timeout)
             timeout_time=60
             start_time=$SECONDS
             current_time=$((SECONDS - start_time))
-            until [[ -s "$execsnoop_log" && -s "$opensnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
+
+            execsnoop_search="TIME(s)\s+PCOMM\s+PID\s+PPID\s+RET\s+ARGS"
+            opensnoop_search="TIME(s)\s+PID\s+COMM\s+FD\s+ERR\s+FLAGS\s+PATH"
+            until grep -q "$execsnoop_search" "$execsnoop_log" && grep -q "$opensnoop_search" "$opensnoop_log" || [[ "$current_time" -gt "$timeout_time" ]]; do
               sleep 1
               current_time=$((SECONDS - start_time))
             done
-            if [[ ! -s "$execsnoop_log" ]]; then
+            if grep -q "$execsnoop_search" "$execsnoop_log"; then
               echo "execsnoop failed to start!" 1>&2
               exit 1
             fi
-            if [[ ! -s "$opensnoop_log" ]]; then
-              echo "execsnoop failed to start!" 1>&2
+            if grep -q "$opensnoop_search" "$opensnoop_log"; then
+              echo "opensnoop failed to start!" 1>&2
               exit 1
             fi
 
