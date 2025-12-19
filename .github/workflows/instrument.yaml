@@ -174,8 +174,8 @@ jobs:
             sed -i 's/^[ ]*//' "$metadata_log"
 
             # Start snooping tools and pipe their outputs to their logs
-            sudo execsnoop-bpfcc -qtx > "$execsnoop_log" &
-            sudo opensnoop-bpfcc -eT > "$opensnoop_log" &
+            sudo execsnoop-bpfcc -qtx &> "$execsnoop_log" &
+            sudo opensnoop-bpfcc -eT &> "$opensnoop_log" &
         
             # Wait for snooping tools to start tracing (or timeout)
             timeout_time=60
