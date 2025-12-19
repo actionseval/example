@@ -157,7 +157,7 @@ jobs:
             timestamp=$(date +%s%N)
             metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
             execsnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.execsnoop.txt
-            # opensnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.opensnoop.txt
+            opensnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.opensnoop.txt
             
             # Create the metadata log
             echo -en \
@@ -175,18 +175,23 @@ jobs:
             sed -i 's/^[ ]*//' "$metadata_log"
 
             # Start snooping tools and pipe their outputs to their logs
-            sudo opensnoop-bpfcc -eT > "$execsnoop_log" 2> /dev/null &
+            sudo execsnoop-bpfcc -qtx >> "$execsnoop_log" 2> /dev/null &
+            sudo opensnoop-bpfcc -eT > "$opensnoop_log" 2> /dev/null &
         
             # Wait for snooping tools to start tracing (or timeout)
             timeout_time=60
             start_time=$SECONDS
             current_time=$((SECONDS - start_time))
-            until [[ -s "$execsnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
+            until [[ -s "$execsnoop_log" && -s "$opensnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
               echo "Waiting..."
               sleep 1
               current_time=$((SECONDS - start_time))
             done
             if [[ ! -s "$execsnoop_log" ]]; then
+              echo "execsnoop failed to start!" 1>&2
+              exit 1
+            fi
+            if [[ ! -s "$opensnoop_log" ]]; then
               echo "execsnoop failed to start!" 1>&2
               exit 1
             fi
