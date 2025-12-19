@@ -137,7 +137,7 @@ jobs:
   
       - name: Run Test Commands
         run: |
-          python3 ignore.py
+          pip install pytest
           pytest
         
       - uses: actions/upload-artifact@v4
