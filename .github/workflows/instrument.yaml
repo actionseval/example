@@ -183,7 +183,6 @@ jobs:
             start_time=$SECONDS
             current_time=$((SECONDS - start_time))
             until [[ -s "$execsnoop_log" && -s "$opensnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
-              echo "Waiting..."
               sleep 1
               current_time=$((SECONDS - start_time))
             done
