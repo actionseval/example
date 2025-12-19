@@ -12,7 +12,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          sudo pip install py-spy
+          sudo pip install py-spy pytest
           pip install py-spy pytest
   
       - name: Set Environmental Variables
