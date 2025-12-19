@@ -12,8 +12,10 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          sudo execsnoop-bpfcc -qtx >> "$execsnoop_log" 2> /dev/null &
-          sudo opensnoop-bpfcc -eT >> "$opensnoop_log" 2> /dev/null &
+          execsnoop_log="/home/runner/execsnoop.log"
+          opensnoop_log="/home/runner/opensnoop.log"
+          sudo execsnoop-bpfcc -qtx > "$execsnoop_log" 2> /dev/null &
+          sudo opensnoop-bpfcc -eT > "$opensnoop_log" 2> /dev/null &
       
           # Wait for snooping tools to start tracing (or timeout)
           timeout_time=60
