@@ -84,6 +84,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
+          echo "$@"
           py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/bin/python "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
@@ -238,6 +239,7 @@ jobs:
             # Wait for the run to finish
             wait $run_pid
           else
+            echo "OUTSIDE"
             /bin/bash "$@"
           fi
           BASH_WRAPPER_EOF
