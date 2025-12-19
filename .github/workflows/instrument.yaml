@@ -66,6 +66,114 @@ jobs:
   
           CINTENT_UV=/home/runner/cintent/bin/uv
           echo "CINTENT_UV=$CINTENT_UV" >> $GITHUB_ENV
+
+      - name: Create 'bash' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          # Save the current matrix configurations
+          echo "${{ toJson(matrix) }}" > matrix_context.json
+          CINTENT_MATRIX=$(cat matrix_context.json | tr -s '\n' ' ')
+          echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
+  
+          # Create bash wrapper
+          cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
+          #!/bin/bash
+          if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
+            export CINTENT_IS_TRACING_BASH=true
+            CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
+            echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
+            
+            # Define the log paths
+            timestamp=$(date +%s%N)
+            metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
+            execsnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.execsnoop.txt
+            strace_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.strace.txt
+            
+            # Create the metadata log
+            echo -en \
+            "repository = $GITHUB_REPOSITORY\n"\
+            "branch = $GITHUB_REF_NAME\n"\
+            "commit = $GITHUB_SHA\n"\
+            "workflow = ${GITHUB_WORKFLOW_REF%@*}\n"\
+            "run_number = $GITHUB_RUN_NUMBER\n"\
+            "run_attempt = $GITHUB_RUN_ATTEMPT\n"\
+            "workspace = $GITHUB_WORKSPACE\n"\
+            "job_id = $GITHUB_JOB\n"\
+            "matrix = $CINTENT_MATRIX\n"\
+            "step_id = $CINTENT_STEP_ID\n"\
+            > "$metadata_log"
+            sed -i 's/^[ ]*//' "$metadata_log"
+            
+            # Start execsnoop and pipe its output to the execsnoop log
+            sudo execsnoop-bpfcc -qx >> "$execsnoop_log" 2> /dev/null &
+  
+            # Wait for execsnoop to start tracing (or timeout)
+            timeout_time=60
+            start_time=$SECONDS
+            current_time=$((SECONDS - start_time))
+            until [[ -s "$execsnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
+              sleep 1
+              current_time=$((SECONDS - start_time))
+            done
+            if [[ ! -s "$execsnoop_log" ]]; then
+              echo "execsnoop failed to start!" 1>&2
+              exit 1
+            fi
+  
+            # Start the run (after strace attaches)
+            ( 
+            timeout_time=60
+            start_time=$SECONDS
+            current_time=$((SECONDS - start_time))
+            until [[ -s "$strace_log" || "$current_time" -gt "$timeout_time" ]]; do
+              sleep 1
+              current_time=$((SECONDS - start_time))
+            done
+            if [[ ! -s "$strace_log" ]]; then
+              echo "strace failed to start!" 1>&2
+              exit 1
+            fi
+            exec /bin/bash "$@"
+            ) &
+            run_pid=$!
+  
+            # Start strace and output its entries to the strace log
+            (
+            sudo strace \
+            -e decode-fds=path \
+            -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
+            -f \
+            -o "$strace_log" \
+            -p $run_pid \
+            -qqq \
+            -ttt \
+            -z
+            ) &
+  
+            # Wait for run to start (or timeout)
+            timeout_time=60
+            start_time=$SECONDS
+            current_time=$((SECONDS - start_time))
+            tracer_pid=$(cat /proc/$run_pid/status | grep -oP "(?<=TracerPid:).*")
+            until [[ "$tracer_pid" -ne 0 || "$current_time" -gt "$timeout_time" ]]; do
+              sleep 1
+              current_time=$((SECONDS - start_time))
+              tracer_pid=$(cat /proc/$run_pid/status | grep -oP "(?<=TracerPid:).*")
+            done
+            if [[ "$tracer_pid" -eq 0 ]]; then
+              echo "run failed to start!" 1>&2
+              exit 1
+            fi
+            
+            # Wait for the run to finish
+            wait $run_pid
+          else
+            /bin/bash "$@"
+          fi
+          BASH_WRAPPER_EOF
+          chmod +x ${{ env.CINTENT_BASH }}
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
       - name: Create 'python' Wrapper
         if: ${{ runner.os == 'Linux' }}
