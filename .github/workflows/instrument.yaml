@@ -191,57 +191,20 @@ jobs:
               exit 1
             fi
   
-            # Start the run (after strace attaches)
-            ( 
-            timeout_time=60
-            start_time=$SECONDS
-            current_time=$((SECONDS - start_time))
-            until [[ -s "$strace_log" || "$current_time" -gt "$timeout_time" ]]; do
-              sleep 1
-              current_time=$((SECONDS - start_time))
-            done
-            if [[ ! -s "$strace_log" ]]; then
-              echo "strace failed to start!" 1>&2
-              exit 1
-            fi
-            exec /bin/bash "$@"
-            ) &
-            run_pid=$!
-  
             # Start strace and output its entries to the strace log
-            (
             sudo strace \
             -e decode-fds=path \
             -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
             -f \
             -o "$strace_log" \
-            -p $run_pid \
             -qqq \
             -ttt \
-            -z
-            ) &
-  
-            # Wait for run to start (or timeout)
-            timeout_time=60
-            start_time=$SECONDS
-            current_time=$((SECONDS - start_time))
-            tracer_pid=$(cat /proc/$run_pid/status | grep -oP "(?<=TracerPid:).*")
-            until [[ "$tracer_pid" -ne 0 || "$current_time" -gt "$timeout_time" ]]; do
-              sleep 1
-              current_time=$((SECONDS - start_time))
-              tracer_pid=$(cat /proc/$run_pid/status | grep -oP "(?<=TracerPid:).*")
-            done
-            if [[ "$tracer_pid" -eq 0 ]]; then
-              echo "run failed to start!" 1>&2
-              exit 1
-            fi
-            
-            # Wait for the run to finish
-            wait $run_pid
+            -z \
+            /bin/bash "$@"
+
             unset CINTENT_IS_TRACING_BASH
             echo "CINTENT_IS_TRACING_BASH=" >> "$GITHUB_ENV"
           else
-            echo "OUTSIDE"
             /bin/bash "$@"
           fi
           BASH_WRAPPER_EOF
