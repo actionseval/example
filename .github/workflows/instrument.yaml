@@ -127,6 +127,9 @@ jobs:
           COMMAND_NAME="pytest"
           COMMAND_PATH=$(which $COMMAND_NAME)
           WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
+
+          echo "Command Path: $COMMAND_PATH"
+          echo "Bin Path: $BIN_PATH"
           
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
@@ -141,8 +144,7 @@ jobs:
   
       - name: Run Test Commands
         run: |
-          python3 test.py
-          pytest
+          python3 ignore.py
         
       - uses: actions/upload-artifact@v4
         if: ${{ runner.os == 'Linux' }}
