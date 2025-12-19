@@ -13,8 +13,7 @@ jobs:
         shell: bash
         run: |
           sudo pip install py-spy
-          pip install py-spy
-          pip install pytest
+          pip install py-spy pytest
   
       - name: Set Environmental Variables
         if: ${{ runner.os == 'Linux' }}
@@ -78,7 +77,10 @@ jobs:
           BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
           WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
 
-          echo "$BIN_PATH"
+          echo "Bin Path: $BIN_PATH"
+
+          # Apply the Wrapper
+          sudo cp $COMMAND_PATH $BIN_PATH
           
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
@@ -87,9 +89,7 @@ jobs:
           py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- "$BIN_PATH" "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
-  
-          # Apply the Wrapper
-          sudo cp $COMMAND_PATH $BIN_PATH
+          
           sudo rm $COMMAND_PATH
           sudo cp $WRAPPER_PATH $COMMAND_PATH
   
@@ -102,6 +102,11 @@ jobs:
           COMMAND_PATH=$(which $COMMAND_NAME)
           BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
           WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
+
+          echo "Bin Path: $BIN_PATH"
+
+          # Apply the Wrapper
+          sudo cp $COMMAND_PATH $BIN_PATH
           
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
@@ -110,9 +115,7 @@ jobs:
           py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- "$BIN_PATH" "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
-  
-          # Apply the Wrapper
-          sudo cp $COMMAND_PATH $BIN_PATH
+          
           sudo rm $COMMAND_PATH
           sudo cp $WRAPPER_PATH $COMMAND_PATH
 
@@ -132,11 +135,10 @@ jobs:
           py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- python3 -m "$COMMAND_NAME" "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
-  
-          # Apply the Wrapper
+
           sudo rm $COMMAND_PATH
           sudo cp $WRAPPER_PATH $COMMAND_PATH
-
+  
       - name: Run Test Commands
         run: |
           python3 test.py
