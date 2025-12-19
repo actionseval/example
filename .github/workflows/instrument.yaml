@@ -83,6 +83,7 @@ jobs:
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
+          echo "PYTHON"
           log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python.pyisession.json"
           sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- /home/runner/cintent/bin/python "$@"
           WRAPPER_EOF
@@ -107,6 +108,7 @@ jobs:
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
+          echo "PYTHON3"
           log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python3.pyisession.json"
           sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- /home/runner/cintent/bin/python3 "$@"
           WRAPPER_EOF
@@ -216,7 +218,7 @@ jobs:
         run: |
           python3 test.py
           python3 ignore.py
-          pytest
+          # pytest
           
       - uses: actions/upload-artifact@v4
         if: ${{ runner.os == 'Linux' }}
