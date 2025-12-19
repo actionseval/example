@@ -175,8 +175,18 @@ jobs:
             "step_id = $CINTENT_STEP_ID\n"\
             > "$metadata_log"
             sed -i 's/^[ ]*//' "$metadata_log"
-            
+
+            # Start strace and output its entries to the strace log
+            sudo strace \
+            -e decode-fds=path \
+            -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
+            -f \
+            -o "$strace_log" \
+            -qqq \
+            -ttt \
+            -z \
             /bin/bash "$@"
+            
             unset CINTENT_IS_TRACING_BASH
             echo "CINTENT_IS_TRACING_BASH=" >> "$GITHUB_ENV"
           else
