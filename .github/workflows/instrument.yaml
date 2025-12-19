@@ -83,7 +83,7 @@ jobs:
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
-          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python.pyisession.json
+          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
           py-spy record --format speedscope --full-filenames --function --output "$pyisession_output" --subprocesses -- /home/runner/cintent/bin/python "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
@@ -107,7 +107,7 @@ jobs:
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
-          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python3.pyisession.json
+          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
           py-spy record --format speedscope --full-filenames --function --output "$pyisession_output" --subprocesses -- /home/runner/cintent/bin/python3 "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
@@ -127,7 +127,7 @@ jobs:
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
-          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pytest.pyisession.json
+          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
           py-spy record --format speedscope --full-filenames --function --output "$pyisession_output" --subprocesses -- python3 -m pytest "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
@@ -148,7 +148,6 @@ jobs:
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
-            echo "WRAPPING"
             export CINTENT_IS_TRACING_BASH=true
             echo "CINTENT_IS_TRACING_BASH=$CINTENT_IS_TRACING_BASH" >> $GITHUB_ENV
             CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
@@ -178,6 +177,8 @@ jobs:
             # Start snooping tools and pipe their outputs to their logs
             sudo execsnoop-bpfcc -qtx &>> "$execsnoop_log" &
             sudo opensnoop-bpfcc -eT &>> "$opensnoop_log" &
+            sleep 10
+            cat $opensnoop_log
         
             # Wait for snooping tools to start tracing (or timeout)
             timeout_time=60
@@ -203,7 +204,6 @@ jobs:
             unset CINTENT_IS_TRACING_BASH
             echo "CINTENT_IS_TRACING_BASH=" >> $GITHUB_ENV
           else
-            echo "NORMAL"
             /bin/bash "$@"
           fi
           BASH_WRAPPER_EOF
