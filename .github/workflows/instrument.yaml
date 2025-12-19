@@ -83,8 +83,8 @@ jobs:
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
-          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          sudo py-spy record --format speedscope --full-filenames --function --output "$pyisession_output" --subprocesses -- /home/runner/cintent/bin/python "$@"
+          log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python.pyisession.json"
+          sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- /home/runner/cintent/bin/python "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
           
@@ -107,8 +107,8 @@ jobs:
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
-          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          sudo py-spy record --format speedscope --full-filenames --function --output "$pyisession_output" --subprocesses -- /home/runner/cintent/bin/python3 "$@"
+          log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python3.pyisession.json"
+          sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- /home/runner/cintent/bin/python3 "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
           
@@ -127,8 +127,8 @@ jobs:
           # Write the Wrapper
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
-          pyisession_output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          sudo py-spy record --format speedscope --full-filenames --function --output "$pyisession_output" --subprocesses -- python3 -m pytest "$@"
+          log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pytest.pyisession.json"
+          sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- python3 -m pytest "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
 
@@ -197,6 +197,7 @@ jobs:
               echo "opensnoop failed to start!" 1>&2
               exit 1
             fi
+            sleep 5
 
             # Start the bash script
             echo "start_time = $(date +%s)" >> $metadata_log
