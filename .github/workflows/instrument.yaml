@@ -12,6 +12,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
+          sudo pip install py-spy pytest
           pip install py-spy pytest
   
       - name: Set Environmental Variables
@@ -156,7 +157,7 @@ jobs:
             timestamp=$(date +%s%N)
             metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
             execsnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.execsnoop.txt
-            opensnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.opensnoop.txt
+            # opensnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.opensnoop.txt
             
             # Create the metadata log
             echo -en \
@@ -181,6 +182,7 @@ jobs:
             start_time=$SECONDS
             current_time=$((SECONDS - start_time))
             until [[ -s "$execsnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
+              echo "Waiting..."
               sleep 1
               current_time=$((SECONDS - start_time))
             done
@@ -190,9 +192,9 @@ jobs:
             fi
 
             # Start the bash script
-            echo "start_time = $(date +%s)\n" >> $metadata_log
+            # echo "start_time = $(date +%s)\n" >> $metadata_log
             /bin/bash "$@"
-            echo "end_time = $(date +%s)\n" >> $metadata_log
+            # echo "end_time = $(date +%s)\n" >> $metadata_log
           else
             /bin/bash "$@"
           fi
