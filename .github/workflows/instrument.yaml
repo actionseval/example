@@ -67,29 +67,29 @@ jobs:
           CINTENT_UV=/home/runner/cintent/bin/uv
           echo "CINTENT_UV=$CINTENT_UV" >> $GITHUB_ENV
   
-      # - name: Create 'python' Wrapper
-      #   if: ${{ runner.os == 'Linux' }}
-      #   shell: bash
-      #   run: |
-      #     # Initialize the Paths
-      #     COMMAND_NAME="python"
-      #     COMMAND_PATH=$(which $COMMAND_NAME)
-      #     BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
-      #     WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
+      - name: Create 'python' Wrapper
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          # Initialize the Paths
+          COMMAND_NAME="python"
+          COMMAND_PATH=$(which $COMMAND_NAME)
+          BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
+          WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
 
-      #     # Apply the Wrapper
-      #     sudo cp $COMMAND_PATH $BIN_PATH
+          # Apply the Wrapper
+          sudo cp $COMMAND_PATH $BIN_PATH
           
-      #     # Write the Wrapper
-      #     cat << 'WRAPPER_EOF' > $WRAPPER_PATH
-      #     #!/bin/bash
-      #     output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-      #     py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/bin/python "$@"
-      #     WRAPPER_EOF
-      #     sudo chmod +x $WRAPPER_PATH
+          # Write the Wrapper
+          cat << 'WRAPPER_EOF' > $WRAPPER_PATH
+          #!/bin/bash
+          output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/bin/python "$@"
+          WRAPPER_EOF
+          sudo chmod +x $WRAPPER_PATH
           
-      #     sudo rm $COMMAND_PATH
-      #     sudo cp $WRAPPER_PATH $COMMAND_PATH
+          sudo rm $COMMAND_PATH
+          sudo cp $WRAPPER_PATH $COMMAND_PATH
   
       - name: Create 'python3' Wrapper
         if: ${{ runner.os == 'Linux' }}
@@ -174,8 +174,8 @@ jobs:
             sed -i 's/^[ ]*//' "$metadata_log"
 
             # Start snooping tools and pipe their outputs to their logs
-            sudo execsnoop-bpfcc -qtx &> "$execsnoop_log" &
-            sudo opensnoop-bpfcc -eT &> "$opensnoop_log" &
+            sudo execsnoop-bpfcc -qtx &>> "$execsnoop_log" &
+            sudo opensnoop-bpfcc -eT &>> "$opensnoop_log" &
         
             # Wait for snooping tools to start tracing (or timeout)
             timeout_time=60
