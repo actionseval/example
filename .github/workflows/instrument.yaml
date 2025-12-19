@@ -174,16 +174,21 @@ jobs:
             sed -i 's/^[ ]*//' "$metadata_log"
 
             # Start snooping tools and pipe their outputs to their logs
-            sudo opensnoop-bpfcc -eT
+            sudo execsnoop-bpfcc -qtx > "$execsnoop_log" 2> /dev/null &
+            sudo opensnoop-bpfcc -eT > "$opensnoop_log" 2> /dev/null &
         
             # Wait for snooping tools to start tracing (or timeout)
             timeout_time=60
             start_time=$SECONDS
             current_time=$((SECONDS - start_time))
-            until [[ -s "$opensnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
+            until [[ -s "$execsnoop_log" && -s "$opensnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
               sleep 1
               current_time=$((SECONDS - start_time))
             done
+            if [[ ! -s "$execsnoop_log" ]]; then
+              echo "execsnoop failed to start!" 1>&2
+              exit 1
+            fi
             if [[ ! -s "$opensnoop_log" ]]; then
               echo "opensnoop failed to start!" 1>&2
               exit 1
