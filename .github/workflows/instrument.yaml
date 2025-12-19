@@ -149,6 +149,7 @@ jobs:
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
+            echo "HERE"
             export CINTENT_IS_TRACING_BASH=true
             echo "CINTENT_IS_TRACING_BASH=$CINTENT_IS_TRACING_BASH" >> "$GITHUB_ENV"
             CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
@@ -175,22 +176,6 @@ jobs:
             > "$metadata_log"
             sed -i 's/^[ ]*//' "$metadata_log"
             
-            # Start execsnoop and pipe its output to the execsnoop log
-            sudo execsnoop-bpfcc -qx >> "$execsnoop_log" 2> /dev/null &
-        
-            # Wait for execsnoop to start tracing (or timeout)
-            timeout_time=60
-            start_time=$SECONDS
-            current_time=$((SECONDS - start_time))
-            until [[ -s "$execsnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
-              sleep 1
-              current_time=$((SECONDS - start_time))
-            done
-            if [[ ! -s "$execsnoop_log" ]]; then
-              echo "execsnoop failed to start!" 1>&2
-              exit 1
-            fi
-            
             /bin/bash "$@"
             unset CINTENT_IS_TRACING_BASH
             echo "CINTENT_IS_TRACING_BASH=" >> "$GITHUB_ENV"
@@ -203,6 +188,4 @@ jobs:
   
       - name: Run Test Commands
         run: |
-          pip install pytest
           pytest
-  
