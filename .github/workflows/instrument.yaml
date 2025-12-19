@@ -175,7 +175,7 @@ jobs:
             sed -i 's/^[ ]*//' "$metadata_log"
 
             # Start snooping tools and pipe their outputs to their logs
-            sudo execsnoop-bpfcc -qtx >> "$execsnoop_log" 2> /dev/null &
+            sudo execsnoop-bpfcc -qtx > "$execsnoop_log" 2> /dev/null &
             sudo opensnoop-bpfcc -eT > "$opensnoop_log" 2> /dev/null &
         
             # Wait for snooping tools to start tracing (or timeout)
@@ -197,9 +197,9 @@ jobs:
             fi
 
             # Start the bash script
-            # echo "start_time = $(date +%s)\n" >> $metadata_log
+            echo "start_time = $(date +%s)\n" >> $metadata_log
             /bin/bash "$@"
-            # echo "end_time = $(date +%s)\n" >> $metadata_log
+            echo "end_time = $(date +%s)\n" >> $metadata_log
           else
             /bin/bash "$@"
           fi
