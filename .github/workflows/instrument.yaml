@@ -12,7 +12,6 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          sudo pip install py-spy pytest
           pip install py-spy pytest
   
       - name: Set Environmental Variables
@@ -208,4 +207,11 @@ jobs:
   
       - name: Run Test Commands
         run: |
+          python3 ignore.py
           pytest
+          
+      - uses: actions/upload-artifact@v4
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          name: ${{ env.CINTENT_ARTIFACT_NAME }}
+          path: ${{ env.CINTENT_LOGS }}
