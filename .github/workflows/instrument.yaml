@@ -149,9 +149,7 @@ jobs:
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
-            echo "HERE"
             export CINTENT_IS_TRACING_BASH=true
-            echo "CINTENT_IS_TRACING_BASH=$CINTENT_IS_TRACING_BASH" >> "$GITHUB_ENV"
             CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
             echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
             
@@ -159,7 +157,7 @@ jobs:
             timestamp=$(date +%s%N)
             metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
             execsnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.execsnoop.txt
-            strace_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.strace.txt
+            opensnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.opensnoop.txt
             
             # Create the metadata log
             echo -en \
@@ -176,20 +174,31 @@ jobs:
             > "$metadata_log"
             sed -i 's/^[ ]*//' "$metadata_log"
 
-            # Start strace and output its entries to the strace log
-            strace \
-            -DDD \
-            -e decode-fds=path \
-            -e trace=execve,execveat,read,readlink,readlinkat,readv,preadv,preadv2,write,writev,pwritev,pwritev2 \
-            -f \
-            -o "$strace_log" \
-            -qqq \
-            -ttt \
-            -z \
+            # Start snooping tools and pipe their outputs to their logs
+            sudo execsnoop-bpfcc -qx >> "$execsnoop_log" 2> /dev/null &
+            sudo opensnoop-bpfcc -eT >> "$opensnoop_log" 2> /dev/null &
+        
+            # Wait for snooping tools to start tracing (or timeout)
+            timeout_time=60
+            start_time=$SECONDS
+            current_time=$((SECONDS - start_time))
+            until [[ -s "$execsnoop_log" && -s "$opensnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
+              sleep 1
+              current_time=$((SECONDS - start_time))
+            done
+            if [[ ! -s "$execsnoop_log" ]]; then
+              echo "execsnoop failed to start!" 1>&2
+              exit 1
+            fi
+            if [[ ! -s "$opensnoop_log" ]]; then
+              echo "opensnoop failed to start!" 1>&2
+              exit 1
+            fi
+
+            # Start the bash script
+            echo "start_time = $(date +%s)\n" >> $metadata_log
             /bin/bash "$@"
-            
-            unset CINTENT_IS_TRACING_BASH
-            echo "CINTENT_IS_TRACING_BASH=" >> "$GITHUB_ENV"
+            echo "end_time = $(date +%s)\n" >> $metadata_log
           else
             /bin/bash "$@"
           fi
