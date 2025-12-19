@@ -14,14 +14,15 @@ jobs:
         run: |
           execsnoop_log="/home/runner/execsnoop.log"
           opensnoop_log="/home/runner/opensnoop.log"
-          sudo execsnoop-bpfcc -qtx > "$execsnoop_log" 2> /dev/null &
-          sudo opensnoop-bpfcc -eT > "$opensnoop_log" 2> /dev/null &
+          sudo execsnoop-bpfcc -qtx >> "$execsnoop_log" 2> /dev/null &
+          sudo opensnoop-bpfcc -eT >> "$opensnoop_log" 2> /dev/null &
       
           # Wait for snooping tools to start tracing (or timeout)
           timeout_time=60
           start_time=$SECONDS
           current_time=$((SECONDS - start_time))
           until [[ -s "$execsnoop_log" && -s "$opensnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
+            echo "Waiting..."
             sleep 1
             current_time=$((SECONDS - start_time))
           done
