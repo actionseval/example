@@ -149,8 +149,8 @@ jobs:
           cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
-            echo "INSIDE"
             export CINTENT_IS_TRACING_BASH=true
+            echo "CINTENT_IS_TRACING_BASH=$CINTENT_IS_TRACING_BASH" >> "$GITHUB_ENV"
             CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
             echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
             
@@ -238,6 +238,8 @@ jobs:
             
             # Wait for the run to finish
             wait $run_pid
+            unset CINTENT_IS_TRACING_BASH
+            echo "CINTENT_IS_TRACING_BASH=" >> "$GITHUB_ENV"
           else
             echo "OUTSIDE"
             /bin/bash "$@"
