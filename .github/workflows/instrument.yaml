@@ -84,7 +84,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/temp/python "$@"
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/bin/python "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
           
@@ -108,7 +108,7 @@ jobs:
           cat << 'WRAPPER_EOF' > $WRAPPER_PATH
           #!/bin/bash
           output=$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pyisession.json
-          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/temp/python3 "$@"
+          py-spy record --format speedscope --full-filenames --function --output "$output" --subprocesses -- /home/runner/cintent/bin/python3 "$@"
           WRAPPER_EOF
           sudo chmod +x $WRAPPER_PATH
           
