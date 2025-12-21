@@ -28,7 +28,6 @@ jobs:
           CINTENT_BIN=/home/runner/cintent/bin
           echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
           mkdir -p $CINTENT_BIN
-          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
           CINTENT_BLACK=/home/runner/cintent/bin/black
           echo "CINTENT_BLACK=$CINTENT_BLACK" >> $GITHUB_ENV
@@ -181,6 +180,7 @@ jobs:
           fi
           WRAPPER_EOF
           chmod +x ${{ env.CINTENT_BASH }}
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
       - name: Run Test Commands
         run: |
