@@ -12,7 +12,6 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          sudo pip install py-spy pytest
           pip install py-spy pytest
   
       - name: Set Environmental Variables
@@ -182,6 +181,8 @@ jobs:
           sudo chmod +x ${{ env.CINTENT_PYTEST }}
 
       - name: Apply the Wrappers
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
         run: |
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
