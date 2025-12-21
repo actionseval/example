@@ -13,7 +13,7 @@ jobs:
         shell: bash
         run: |
           sudo apt update
-          sudo apt install --only-upgrade python3-pip packaging
+          sudo apt install --only-upgrade python3-packaging python3-pip
           sudo pip install black flake8 mypy py-spy pylint pytest ruff tox uv xdoctest
           pip install black flake8 mypy py-spy pylint pytest ruff tox uv xdoctest
   
