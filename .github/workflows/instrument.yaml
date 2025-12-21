@@ -71,71 +71,36 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          # Initialize the Paths
-          COMMAND_NAME="python"
-          COMMAND_PATH=$(which $COMMAND_NAME)
-          BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
-          WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
-
-          # Apply the Wrapper
-          sudo cp $COMMAND_PATH $BIN_PATH
-          
-          # Write the Wrapper
-          cat << 'WRAPPER_EOF' > $WRAPPER_PATH
+          cat << 'WRAPPER_EOF' > ${{ env.CINTENT_PY }}
           #!/bin/bash
           echo "PYTHON"
           log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python.pyisession.json"
           sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- /home/runner/cintent/bin/python "$@"
           WRAPPER_EOF
-          sudo chmod +x $WRAPPER_PATH
-          
-          sudo rm $COMMAND_PATH
-          sudo cp $WRAPPER_PATH $COMMAND_PATH
+          sudo chmod +x ${{ env.CINTENT_PY }}
   
       - name: Create 'python3' Wrapper
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          # Initialize the Paths
-          COMMAND_NAME="python3"
-          COMMAND_PATH=$(which $COMMAND_NAME)
-          BIN_PATH=$CINTENT_BIN/$COMMAND_NAME
-          WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
-
-          # Apply the Wrapper
-          sudo cp $COMMAND_PATH $BIN_PATH
-          
-          # Write the Wrapper
-          cat << 'WRAPPER_EOF' > $WRAPPER_PATH
+          cat << 'WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
           echo "PYTHON3"
           log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python3.pyisession.json"
           sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- /home/runner/cintent/bin/python3 "$@"
           WRAPPER_EOF
-          sudo chmod +x $WRAPPER_PATH
-          
-          sudo rm $COMMAND_PATH
-          sudo cp $WRAPPER_PATH $COMMAND_PATH
+          sudo chmod +x ${{ env.CINTENT_PY3 }}
 
       - name: Create 'pytest' Wrapper
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          # Initialize the Paths
-          COMMAND_NAME="pytest"
-          COMMAND_PATH=$(which $COMMAND_NAME)
-          WRAPPER_PATH=$CINTENT_TEMP/$COMMAND_NAME
-          
-          # Write the Wrapper
-          cat << 'WRAPPER_EOF' > $WRAPPER_PATH
+          cat << 'WRAPPER_EOF' > ${{ env.CINTENT_PYTEST }}
           #!/bin/bash
           log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.pytest.pyisession.json"
           sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- python3 -m pytest "$@"
           WRAPPER_EOF
-          sudo chmod +x $WRAPPER_PATH
-
-          sudo rm $COMMAND_PATH
-          sudo cp $WRAPPER_PATH $COMMAND_PATH
+          sudo chmod +x ${{ env.CINTENT_PYTEST }}
 
       - name: Create 'bash' Wrapper
         if: ${{ runner.os == 'Linux' }}
@@ -147,7 +112,7 @@ jobs:
           echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
   
           # Create bash wrapper
-          cat << 'BASH_WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
+          cat << 'WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
             export CINTENT_IS_TRACING_BASH=true
@@ -209,7 +174,7 @@ jobs:
           else
             /bin/bash "$@"
           fi
-          BASH_WRAPPER_EOF
+          WRAPPER_EOF
           chmod +x ${{ env.CINTENT_BASH }}
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
