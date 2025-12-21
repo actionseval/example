@@ -28,6 +28,7 @@ jobs:
           CINTENT_BIN=/home/runner/cintent/bin
           echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
           mkdir -p $CINTENT_BIN
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
           CINTENT_BLACK=/home/runner/cintent/bin/black
           echo "CINTENT_BLACK=$CINTENT_BLACK" >> $GITHUB_ENV
@@ -44,9 +45,15 @@ jobs:
   
           CINTENT_PY=/home/runner/cintent/bin/python
           echo "CINTENT_PY=$CINTENT_PY" >> $GITHUB_ENV
+
+          CINTENT_PY_BIN=$(which python)
+          echo "CINTENT_PY_BIN=$CINTENT_PY_BIN" >> $GITHUB_ENV
   
           CINTENT_PY3=/home/runner/cintent/bin/python3
           echo "CINTENT_PY3=$CINTENT_PY3" >> $GITHUB_ENV
+
+          CINTENT_PY3_BIN=$(which python3)
+          echo "CINTENT_PY3_BIN=$CINTENT_PY3_BIN" >> $GITHUB_ENV
   
           CINTENT_PYLINT=/home/runner/cintent/bin/pylint
           echo "CINTENT_PYLINT=$CINTENT_PYLINT" >> $GITHUB_ENV
@@ -73,9 +80,8 @@ jobs:
         run: |
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_PY }}
           #!/bin/bash
-          echo "PYTHON"
           log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python.pyisession.json"
-          sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- /home/runner/cintent/bin/python "$@"
+          sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- $CINTENT_PY_BIN "$@"
           WRAPPER_EOF
           sudo chmod +x ${{ env.CINTENT_PY }}
   
@@ -85,9 +91,8 @@ jobs:
         run: |
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_PY3 }}
           #!/bin/bash
-          echo "PYTHON3"
           log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.python3.pyisession.json"
-          sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- /home/runner/cintent/bin/python3 "$@"
+          sudo py-spy record --format speedscope --full-filenames --function --output "$log_path" --subprocesses -- $CINTENT_PY3_BIN "$@"
           WRAPPER_EOF
           sudo chmod +x ${{ env.CINTENT_PY3 }}
 
@@ -111,7 +116,7 @@ jobs:
           CINTENT_MATRIX=$(cat matrix_context.json | tr -s '\n' ' ')
           echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
   
-          # Create bash wrapper
+          # Write the bash wrapper
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
           #!/bin/bash
           if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
@@ -176,7 +181,6 @@ jobs:
           fi
           WRAPPER_EOF
           chmod +x ${{ env.CINTENT_BASH }}
-          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
       - name: Run Test Commands
         run: |
