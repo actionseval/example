@@ -8,29 +8,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Opensnoop
+      - name: Install Dependencies
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          execsnoop_log="/home/runner/execsnoop.log"
-          opensnoop_log="/home/runner/opensnoop.log"
-          sudo execsnoop-bpfcc -qtx >> "$execsnoop_log" 2> /dev/null &
-          sudo opensnoop-bpfcc -eT >> "$opensnoop_log" 2> /dev/null &
-      
-          # Wait for snooping tools to start tracing (or timeout)
-          timeout_time=60
-          start_time=$SECONDS
-          current_time=$((SECONDS - start_time))
-          until [[ -s "$execsnoop_log" && -s "$opensnoop_log" || "$current_time" -gt "$timeout_time" ]]; do
-            echo "Waiting..."
-            sleep 1
-            current_time=$((SECONDS - start_time))
-          done
-          if [[ ! -s "$execsnoop_log" ]]; then
-            echo "execsnoop failed to start!" 1>&2
-            exit 1
-          fi
-          if [[ ! -s "$opensnoop_log" ]]; then
-            echo "opensnoop failed to start!" 1>&2
-            exit 1
-          fi
+          python -m pip install --user nox
+          python -m pip install --user poetry
+          python -m pip install --user pytest
+          python -m pip install --user tox
