@@ -196,8 +196,9 @@ jobs:
         run: |
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_MODULE_WRAPPER }}
           #!/bin/bash
-          POSITIONAL_ARGUMENTS=$(basename "$0")
-          echo "COMMAND: $POSITIONAL_ARGUMENTS"
+          echo "HERE"
+          TEMPZ=$(basename "$0")
+          echo "RESULT: $TEMPZ"
           # POSITIONAL_ARGUMENTS="$@"
           # log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
           # pip show scalene > /dev/null 2>&1 || pip install scalene
@@ -224,9 +225,9 @@ jobs:
           export PATH="${{ env.CINTENT_BIN }}:$PATH"
           echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
         
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.13' 
+      # - uses: actions/setup-python@v6
+      #   with:
+      #     python-version: '3.13' 
 
       - name: Run Test Commands I
         run: |
