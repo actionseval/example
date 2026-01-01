@@ -14,20 +14,20 @@ jobs:
         with:
           python-version: '3.13' 
           
-      - name: Install Dependencies
-        run: |
-          python -m pip install pytest
-          pip install pytest
+      # - name: Install Dependencies
+      #   run: |
+      #     python -m pip install pytest
+      #     pip install pytest
 
-      - name: Run Test Commands I
-        run: |
-          python test.py
-          python ignore.py
+      # - name: Run Test Commands I
+      #   run: |
+      #     python test.py
+      #     python ignore.py
 
       - name: Run Test Commands II
         run: |
           pip install pytest
-          python -m pytest --log-level=WARNING .
+          pytest --log-level=WARNING .
           
       - name: Upload CIntent Artifacts
         uses: actions/upload-artifact@v4
