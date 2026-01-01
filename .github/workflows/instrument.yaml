@@ -24,14 +24,45 @@ jobs:
       #     python test.py
       #     python ignore.py
 
-      - name: Run Test Commands II
+      - name: Set Environmental Variables
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
         run: |
           CINTENT_ARTIFACT_NAME="cintent_log"
           echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
-          
+  
+          CINTENT_BASH=/home/runner/cintent/bin/bash
+          echo "CINTENT_BASH=$CINTENT_BASH" >> $GITHUB_ENV
+  
+          CINTENT_BIN=/home/runner/cintent/bin
+          echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
+          mkdir -p $CINTENT_BIN
+  
           CINTENT_LOGS=/home/runner/cintent/log
+          echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
           mkdir -p $CINTENT_LOGS
-          
+  
+          CINTENT_MODULE_WRAPPER=/home/runner/cintent/temp/module_wrapper
+          echo "CINTENT_MODULE_WRAPPER=$CINTENT_MODULE_WRAPPER" >> $GITHUB_ENV
+  
+          CINTENT_PYTHON=/home/runner/cintent/bin/python
+          echo "CINTENT_PYTHON=$CINTENT_PYTHON" >> $GITHUB_ENV
+  
+          CINTENT_PYTHON_WRAPPER=/home/runner/cintent/temp/python_wrapper
+          echo "CINTENT_PYTHON_WRAPPER=$CINTENT_PYTHON_WRAPPER" >> $GITHUB_ENV
+  
+          CINTENT_PYTHON3=/home/runner/cintent/bin/python3
+          echo "CINTENT_PYTHON3=$CINTENT_PYTHON3" >> $GITHUB_ENV
+  
+          CINTENT_STEP_ID=0
+          echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
+  
+          CINTENT_TEMP=/home/runner/cintent/temp
+          echo "CINTENT_TEMP=$CINTENT_TEMP" >> $GITHUB_ENV
+          mkdir -p $CINTENT_TEMP
+
+      - name: Run Test Commands II
+        run: |
           LOG_PATH="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
           python -m pip install pytest
           python -m pip install scalene
