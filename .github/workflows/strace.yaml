@@ -21,4 +21,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          pip install nox, poetry, pytest, tox
+          pip install nox
+          pip install poetry
+          pip install pytest
+          pip install tox
