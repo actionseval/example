@@ -32,7 +32,7 @@ jobs:
           LOG_PATH="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
           python -m pip install pytest
           python -m pip install scalene
-          scalene run --outfile "$LOG_PATH" --cpu-only --profile-all --cpu-percent-threshold 0 --cpu-sampling-rate 0.01 --malloc-threshold 0 --stacks "$MODULE_LHS" --- "$MODULE_RHS" -m pytest --- .
+          scalene run --outfile "$LOG_PATH" --cpu-only --profile-all --cpu-percent-threshold 0 --cpu-sampling-rate 0.01 --malloc-threshold 0 --stacks -m pytest --- .
           
       - name: Upload CIntent Artifacts
         uses: actions/upload-artifact@v4
