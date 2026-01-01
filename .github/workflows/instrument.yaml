@@ -197,7 +197,8 @@ jobs:
         run: |
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_MODULE_WRAPPER }}
           #!/bin/bash
-          history
+          POSITIONAL_ARGUMENTS=$($(basename "$0") "$@")
+          echo "COMMAND: $POSITIONAL_ARGUMENTS"
           # POSITIONAL_ARGUMENTS="$@"
           # log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
           # pip show scalene > /dev/null 2>&1 || pip install scalene
