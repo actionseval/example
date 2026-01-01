@@ -26,6 +26,9 @@ jobs:
 
       - name: Run Test Commands II
         run: |
+          CINTENT_ARTIFACT_NAME="cintent_log"
+          echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
+          
           CINTENT_LOGS=/home/runner/cintent/log
           mkdir -p $CINTENT_LOGS
           
