@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: JavidDitty/setup-cintent@c7fea16bf1723eb072e7c6138c6303c0f6ad41b0
+      # - uses: JavidDitty/setup-cintent@c7fea16bf1723eb072e7c6138c6303c0f6ad41b0
         
       - uses: actions/setup-python@v6
         with:
