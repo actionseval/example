@@ -78,101 +78,101 @@ jobs:
           CINTENT_XDOCTEST=/home/runner/cintent/bin/xdoctest
           echo "CINTENT_XDOCTEST=$CINTENT_XDOCTEST" >> $GITHUB_ENV
   
-      - name: Write Bash Wrappers
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
-          # Save the current matrix configurations
-          echo "${{ toJson(matrix) }}" > matrix_context.json
-          CINTENT_MATRIX=$(cat matrix_context.json | tr -s '\n' ' ')
-          echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
+      # - name: Write Bash Wrappers
+      #   if: ${{ runner.os == 'Linux' }}
+      #   shell: bash
+      #   run: |
+      #     # Save the current matrix configurations
+      #     echo "${{ toJson(matrix) }}" > matrix_context.json
+      #     CINTENT_MATRIX=$(cat matrix_context.json | tr -s '\n' ' ')
+      #     echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
   
-          # Write the bash wrapper
-          cat << 'WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
-          #!/bin/bash
-          if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
-            # Set tracer indicator
-            export CINTENT_IS_TRACING_BASH=true
-            echo "CINTENT_IS_TRACING_BASH=$CINTENT_IS_TRACING_BASH" >> $GITHUB_ENV
+      #     # Write the bash wrapper
+      #     cat << 'WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
+      #     #!/bin/bash
+      #     if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
+      #       # Set tracer indicator
+      #       export CINTENT_IS_TRACING_BASH=true
+      #       echo "CINTENT_IS_TRACING_BASH=$CINTENT_IS_TRACING_BASH" >> $GITHUB_ENV
   
-            # Increment the step id
-            CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
-            echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
+      #       # Increment the step id
+      #       CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
+      #       echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
             
-            # Define the log paths
-            timestamp=$(date +%s%N)
-            metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
-            execsnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.execsnoop.txt
-            opensnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.opensnoop.txt
+      #       # Define the log paths
+      #       timestamp=$(date +%s%N)
+      #       metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
+      #       execsnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.execsnoop.txt
+      #       opensnoop_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.opensnoop.txt
             
-            # Create the metadata log
-            echo -en \
-            "repository = $GITHUB_REPOSITORY\n"\
-            "branch = $GITHUB_REF_NAME\n"\
-            "commit = $GITHUB_SHA\n"\
-            "workflow = ${GITHUB_WORKFLOW_REF%@*}\n"\
-            "run_number = $GITHUB_RUN_NUMBER\n"\
-            "run_attempt = $GITHUB_RUN_ATTEMPT\n"\
-            "workspace = $GITHUB_WORKSPACE\n"\
-            "job_id = $GITHUB_JOB\n"\
-            "matrix = $CINTENT_MATRIX\n"\
-            "step_id = $CINTENT_STEP_ID\n"\
-            > "$metadata_log"
-            sed -i 's/^[ ]*//' "$metadata_log"
+      #       # Create the metadata log
+      #       echo -en \
+      #       "repository = $GITHUB_REPOSITORY\n"\
+      #       "branch = $GITHUB_REF_NAME\n"\
+      #       "commit = $GITHUB_SHA\n"\
+      #       "workflow = ${GITHUB_WORKFLOW_REF%@*}\n"\
+      #       "run_number = $GITHUB_RUN_NUMBER\n"\
+      #       "run_attempt = $GITHUB_RUN_ATTEMPT\n"\
+      #       "workspace = $GITHUB_WORKSPACE\n"\
+      #       "job_id = $GITHUB_JOB\n"\
+      #       "matrix = $CINTENT_MATRIX\n"\
+      #       "step_id = $CINTENT_STEP_ID\n"\
+      #       > "$metadata_log"
+      #       sed -i 's/^[ ]*//' "$metadata_log"
   
-            # Start snooping tools and pipe their outputs to their logs
-            sudo execsnoop-bpfcc -qtx > "$execsnoop_log" 2> /dev/null &
-            sudo opensnoop-bpfcc -eT -n python > "$opensnoop_log" 2> /dev/null &
+      #       # Start snooping tools and pipe their outputs to their logs
+      #       sudo execsnoop-bpfcc -qtx > "$execsnoop_log" 2> /dev/null &
+      #       sudo opensnoop-bpfcc -eT -n python > "$opensnoop_log" 2> /dev/null &
         
-            # Wait for snooping tools to start tracing (or timeout)
-            timeout_time=60
-            start_time=$SECONDS
-            current_time=$((SECONDS - start_time))
-            execsnoop_search="TIME(s)\s+PCOMM\s+PID\s+PPID\s+RET\s+ARGS"
-            opensnoop_search="TIME(s)\s+PID\s+COMM\s+FD\s+ERR\s+FLAGS\s+PATH"
-            until grep -q "$execsnoop_search" "$execsnoop_log" && grep -q "$opensnoop_search" "$opensnoop_log" || [[ "$current_time" -gt "$timeout_time" ]]; do
-              sleep 1
-              current_time=$((SECONDS - start_time))
-            done
-            if grep -q "$execsnoop_search" "$execsnoop_log"; then
-              echo "execsnoop failed to start!" 1>&2
-              exit 1
-            fi
-            if grep -q "$opensnoop_search" "$opensnoop_log"; then
-              echo "opensnoop failed to start!" 1>&2
-              exit 1
-            fi
+      #       # Wait for snooping tools to start tracing (or timeout)
+      #       timeout_time=60
+      #       start_time=$SECONDS
+      #       current_time=$((SECONDS - start_time))
+      #       execsnoop_search="TIME(s)\s+PCOMM\s+PID\s+PPID\s+RET\s+ARGS"
+      #       opensnoop_search="TIME(s)\s+PID\s+COMM\s+FD\s+ERR\s+FLAGS\s+PATH"
+      #       until grep -q "$execsnoop_search" "$execsnoop_log" && grep -q "$opensnoop_search" "$opensnoop_log" || [[ "$current_time" -gt "$timeout_time" ]]; do
+      #         sleep 1
+      #         current_time=$((SECONDS - start_time))
+      #       done
+      #       if grep -q "$execsnoop_search" "$execsnoop_log"; then
+      #         echo "execsnoop failed to start!" 1>&2
+      #         exit 1
+      #       fi
+      #       if grep -q "$opensnoop_search" "$opensnoop_log"; then
+      #         echo "opensnoop failed to start!" 1>&2
+      #         exit 1
+      #       fi
   
-            # (Re-)Apply the wrapper(s)
-            export PATH="${{ env.CINTENT_BIN }}:$PATH"
-            echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+      #       # (Re-)Apply the wrapper(s)
+      #       export PATH="${{ env.CINTENT_BIN }}:$PATH"
+      #       echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
-            # Start the bash script
-            echo "start_time = $(date +%s)" >> $metadata_log
-            /bin/bash "$@"
-            echo "end_time = $(date +%s)" >> $metadata_log
+      #       # Start the bash script
+      #       echo "start_time = $(date +%s)" >> $metadata_log
+      #       /bin/bash "$@"
+      #       echo "end_time = $(date +%s)" >> $metadata_log
   
-            # (Re-)Apply the wrapper(s)
-            export PATH="${{ env.CINTENT_BIN }}:$PATH"
-            echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+      #       # (Re-)Apply the wrapper(s)
+      #       export PATH="${{ env.CINTENT_BIN }}:$PATH"
+      #       echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
-            # Unset tracer indicator
-            unset CINTENT_IS_TRACING_BASH
-            echo "CINTENT_IS_TRACING_BASH=" >> $GITHUB_ENV
-          else
-            # (Re-)Apply the wrapper(s)
-            export PATH="${{ env.CINTENT_BIN }}:$PATH"
-            echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+      #       # Unset tracer indicator
+      #       unset CINTENT_IS_TRACING_BASH
+      #       echo "CINTENT_IS_TRACING_BASH=" >> $GITHUB_ENV
+      #     else
+      #       # (Re-)Apply the wrapper(s)
+      #       export PATH="${{ env.CINTENT_BIN }}:$PATH"
+      #       echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
   
-            # Start the bash script
-            /bin/bash "$@"
+      #       # Start the bash script
+      #       /bin/bash "$@"
   
-            # (Re-)Apply the wrapper(s)
-            export PATH="${{ env.CINTENT_BIN }}:$PATH"
-            echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
-          fi
-          WRAPPER_EOF
-          chmod +x ${{ env.CINTENT_BASH }}
+      #       # (Re-)Apply the wrapper(s)
+      #       export PATH="${{ env.CINTENT_BIN }}:$PATH"
+      #       echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+      #     fi
+      #     WRAPPER_EOF
+      #     chmod +x ${{ env.CINTENT_BASH }}
   
       - name: Write Python Wrappers
         if: ${{ runner.os == 'Linux' }}
@@ -180,7 +180,6 @@ jobs:
         run: |
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_PYTHON_WRAPPER }}
           #!/bin/bash
-          history
           # POSITIONAL_ARGUMENTS="$@"
           # log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
           # pip show scalene > /dev/null 2>&1 || pip install scalene
@@ -197,7 +196,7 @@ jobs:
         run: |
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_MODULE_WRAPPER }}
           #!/bin/bash
-          POSITIONAL_ARGUMENTS=$($(basename "$0") "$@")
+          POSITIONAL_ARGUMENTS=$(basename "$0")
           echo "COMMAND: $POSITIONAL_ARGUMENTS"
           # POSITIONAL_ARGUMENTS="$@"
           # log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
