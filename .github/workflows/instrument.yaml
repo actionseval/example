@@ -180,7 +180,7 @@ jobs:
         run: |
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_PYTHON_WRAPPER }}
           #!/bin/bash
-          echo "POSITIONAL: $@"
+          echo "POSITIONAL: $(history 2 | head -n1 | sed 's/^[ ]*[0-9]\+[ ]*//')"
           # POSITIONAL_ARGUMENTS="$@"
           # log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
           # pip show scalene > /dev/null 2>&1 || pip install scalene
@@ -197,7 +197,7 @@ jobs:
         run: |
           cat << 'WRAPPER_EOF' > ${{ env.CINTENT_MODULE_WRAPPER }}
           #!/bin/bash
-          echo "POSITIONAL: $@"
+          echo "POSITIONAL: $(history 2 | head -n1 | sed 's/^[ ]*[0-9]\+[ ]*//')"
           # POSITIONAL_ARGUMENTS="$@"
           # log_path="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
           # pip show scalene > /dev/null 2>&1 || pip install scalene
