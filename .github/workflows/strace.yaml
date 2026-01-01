@@ -8,11 +8,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      # - name: Install Dependencies
+      #   if: ${{ runner.os == 'Linux' }}
+      #   shell: bash
+      #   run: |
+      #     python -m pip install --user nox
+      #     python -m pip install --user poetry
+      #     python -m pip install --user pytest
+      #     python -m pip install --user tox
+
       - name: Install Dependencies
         if: ${{ runner.os == 'Linux' }}
         shell: bash
         run: |
-          python -m pip install --user nox
-          python -m pip install --user poetry
-          python -m pip install --user pytest
-          python -m pip install --user tox
+          pip install nox, poetry, pytest, tox
