@@ -21,6 +21,7 @@ jobs:
 
       - name: Run Test Commands II
         run: |
+          pip install pytest
           pytest
           
       - name: Upload CIntent Artifacts
