@@ -12,28 +12,29 @@ jobs:
       #   run: |
       #     sudo pip install py-spy
 
-      - name: Install Bootstrap
-        run: |
-          mkdir -p /home/runner/cintent
-          cd /home/runner/cintent
+      # - name: Install Bootstrap
+      #   run: |
+      #     mkdir -p /home/runner/cintent
+      #     cd /home/runner/cintent
           
-          sudo apt install clang libelf1 libelf-dev zlib1g-dev
-          git clone --recurse-submodules https://github.com/libbpf/libbpf-bootstrap
-          # git submodule update --init --recursive
+      #     sudo apt install clang libelf1 libelf-dev zlib1g-dev
+      #     git clone --recurse-submodules https://github.com/libbpf/libbpf-bootstrap
+      #     # git submodule update --init --recursive
 
       - name: Install Bootstrap
         run: |
-          cd /home/runner/cintent
+          ls
+          # cd /home/runner/cintent
           
-          cp -r ./bootstrap /home/runner/cintent/libbpf-bootstrap/examples
-          cd /home/runner/cintent/libbpf-bootstrap/examples/bootstrap
-          make
+          # cp -r ./bootstrap /home/runner/cintent/libbpf-bootstrap/examples
+          # cd /home/runner/cintent/libbpf-bootstrap/examples/bootstrap
+          # make
 
-      - name: Upload Bootstrap
-        uses: actions/upload-artifact@v4
-        with:
-          name: bootstrap
-          path: /home/runner/cintent/libbpf-bootstrap/examples/bootstrap
+      # - name: Upload Bootstrap
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: bootstrap
+      #     path: /home/runner/cintent/libbpf-bootstrap/examples/bootstrap
 
       # - uses: actions/setup-python@v6
       #   with:
