@@ -19,7 +19,11 @@ jobs:
           
           sudo apt install clang libelf1 libelf-dev zlib1g-dev
           git clone --recurse-submodules https://github.com/libbpf/libbpf-bootstrap
-          git submodule update --init --recursive
+          # git submodule update --init --recursive
+
+      - name: Install Bootstrap
+        run: |
+          cd /home/runner/cintent
           
           cp -r /home/runner/example/example/bootstrap /home/runner/cintent/libbpf-bootstrap/examples
           cd /home/runner/cintent/libbpf-bootstrap/examples/bootstrap
