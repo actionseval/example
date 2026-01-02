@@ -8,69 +8,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - uses: JavidDitty/setup-cintent@c7fea16bf1723eb072e7c6138c6303c0f6ad41b0
-        
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.13' 
-          
       # - name: Install Dependencies
       #   run: |
-      #     python -m pip install pytest
-      #     pip install pytest
+      #     sudo pip install py-spy
+
+      - name: Install Bootstrap
+        run: |
+          mkdir -p /home/runner/cintent
+          cd /home/runner/cintent
+          
+          sudo apt install clang libelf1 libelf-dev zlib1g-dev
+          git clone --recurse-submodules https://github.com/libbpf/libbpf-bootstrap
+          git submodule update --init --recursive
+          
+          cp -r /home/runner/example/example/bootstrap /home/runner/cintent/libbpf-bootstrap/examples
+          cd /home/runner/cintent/libbpf-bootstrap/examples/bootstrap
+          make
+
+      - name: Upload Bootstrap
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootstrap
+          path: /home/runner/cintent/libbpf-bootstrap/examples/bootstrap
+
+      # - uses: actions/setup-python@v6
+      #   with:
+      #     python-version: '3.13'
 
       # - name: Run Test Commands I
       #   run: |
       #     python test.py
       #     python ignore.py
 
-      - name: Set Environmental Variables
-        if: ${{ runner.os == 'Linux' }}
-        shell: bash
-        run: |
-          CINTENT_ARTIFACT_NAME="cintent_log"
-          echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
-  
-          CINTENT_BASH=/home/runner/cintent/bin/bash
-          echo "CINTENT_BASH=$CINTENT_BASH" >> $GITHUB_ENV
-  
-          CINTENT_BIN=/home/runner/cintent/bin
-          echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
-          mkdir -p $CINTENT_BIN
-  
-          CINTENT_LOGS=/home/runner/cintent/log
-          echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
-          mkdir -p $CINTENT_LOGS
-  
-          CINTENT_MODULE_WRAPPER=/home/runner/cintent/temp/module_wrapper
-          echo "CINTENT_MODULE_WRAPPER=$CINTENT_MODULE_WRAPPER" >> $GITHUB_ENV
-  
-          CINTENT_PYTHON=/home/runner/cintent/bin/python
-          echo "CINTENT_PYTHON=$CINTENT_PYTHON" >> $GITHUB_ENV
-  
-          CINTENT_PYTHON_WRAPPER=/home/runner/cintent/temp/python_wrapper
-          echo "CINTENT_PYTHON_WRAPPER=$CINTENT_PYTHON_WRAPPER" >> $GITHUB_ENV
-  
-          CINTENT_PYTHON3=/home/runner/cintent/bin/python3
-          echo "CINTENT_PYTHON3=$CINTENT_PYTHON3" >> $GITHUB_ENV
-  
-          CINTENT_STEP_ID=0
-          echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
-  
-          CINTENT_TEMP=/home/runner/cintent/temp
-          echo "CINTENT_TEMP=$CINTENT_TEMP" >> $GITHUB_ENV
-          mkdir -p $CINTENT_TEMP
-
-      - name: Run Test Commands II
-        run: |
-          LOG_PATH="$CINTENT_LOGS/$(date +%s%N).$CINTENT_STEP_ID.scalene.json"
-          python -m pip install pytest
-          python -m pip install scalene
-          scalene run --outfile "$LOG_PATH" --cpu-only --profile-all --cpu-percent-threshold 0 --cpu-sampling-rate 0.01 --malloc-threshold 0 --stacks -m pytest --- .
-          
-      - name: Upload CIntent Artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ${{ env.CINTENT_ARTIFACT_NAME }}
-          path: ${{ env.CINTENT_LOGS }}
+      # - name: Run Test Commands II
+      #   run: |
+      #     pytest .
