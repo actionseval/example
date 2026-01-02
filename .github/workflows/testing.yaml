@@ -21,12 +21,12 @@ jobs:
           sudo ./pysnoop &
           sleep 5
           
-          python test.py
-          python3 target.py
+          # python test.py
+          # python3 target.py
           pytest .
 
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: my-artifact
-          path: .
+      # - uses: actions/upload-artifact@v4
+      #   if: always()
+      #   with:
+      #     name: my-artifact
+      #     path: .
