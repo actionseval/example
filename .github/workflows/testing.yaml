@@ -16,7 +16,7 @@ jobs:
         run: |
           sudo pip install py-spy
           pip install pytest
-          ./bootstrap &
+          ./pysnoop &
           sleep 5
           python test.py
           python3 target.py
