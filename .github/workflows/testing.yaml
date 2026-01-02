@@ -1,0 +1,23 @@
+name: Testing
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Run Test Commands
+        run: |
+          sudo pip install py-spy
+          pip install pytest
+          ./bootstrap &
+          sleep 5
+          python test.py
+          python3 target.py
+          pytest .
