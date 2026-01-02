@@ -14,15 +14,13 @@ jobs:
 
       - name: Run Test Commands
         run: |
+          sudo pip install py-spy
+          pip install pytest
+          
           chmod +x ./pysnoop
           sudo ./pysnoop &
-
-      # - name: Run Test Commands
-      #   run: |
-      #     sudo pip install py-spy
-      #     pip install pytest
-      #     sudo ./pysnoop &
-      #     sleep 5
-      #     python test.py
-      #     python3 target.py
-      #     pytest .
+          sleep 5
+          
+          python test.py
+          python3 target.py
+          pytest .
