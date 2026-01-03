@@ -7,26 +7,52 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.13'
 
-      - name: Run Test Commands
+      - name: Set Environmental Variables
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
         run: |
-          sudo pip install py-spy
-          pip install pytest
+          CINTENT_ARTIFACT_NAME="cintent_log"
+          echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
           
-          chmod +x ./pysnoop
-          sudo ./pysnoop &
-          sleep 5
+          CINTENT_BASH=/home/runner/cintent/bin/bash
+          echo "CINTENT_BASH=$CINTENT_BASH" >> $GITHUB_ENV
           
-          python test.py
-          python3 target.py
-          pytest .
+          CINTENT_BIN=/home/runner/cintent/bin
+          echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
+          mkdir -p $CINTENT_BIN
+          
+          CINTENT_LOGS=/home/runner/cintent/log
+          echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
+          mkdir -p $CINTENT_LOGS
+          
+          CINTENT_STEP_ID=0
+          echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
 
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: my-artifact
-          path: .
+      - run: |
+          pwd
+          python3 ./functions -o ${{ env.CINTENT_LOGS }} .
+          
+        
+      # - uses: actions/setup-python@v6
+      #   with:
+      #     python-version: '3.13'
+
+      # - name: Run Test Commands
+      #   run: |
+      #     sudo pip install py-spy
+      #     pip install pytest
+          
+      #     chmod +x ./pysnoop
+      #     sudo ./pysnoop &
+      #     sleep 5
+          
+      #     python test.py
+      #     python3 target.py
+      #     pytest .
+
+      # - uses: actions/upload-artifact@v4
+      #   if: always()
+      #   with:
+      #     name: my-artifact
+      #     path: .
