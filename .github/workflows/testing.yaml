@@ -30,10 +30,8 @@ jobs:
           echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
 
       - run: |
-          pwd
-          python3 ./functions -o ${{ env.CINTENT_LOGS }} .
-          
-        
+          python3 functions.py -o ${{ env.CINTENT_LOGS }} ${{ github.workspace }}
+
       # - uses: actions/setup-python@v6
       #   with:
       #     python-version: '3.13'
