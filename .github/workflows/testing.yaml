@@ -30,6 +30,7 @@ jobs:
           echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
 
       - run: |
+          pip install pandas tree_sitter tree_sitter_python
           python3 functions.py -o ${{ env.CINTENT_LOGS }} ${{ github.workspace }}
 
       # - uses: actions/setup-python@v6
