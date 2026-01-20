@@ -7,6 +7,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          sudo bpftrace -e 'tracepoint:raw_syscalls:sys_enter { printf("Hello World\n"); }'
-          sleep 5
-
+          sudo bpftrace --version
