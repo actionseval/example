@@ -15,5 +15,5 @@ jobs:
       #     echo "Workflow: $GITHUB_WORKFLOW"
        - name: Find and print current workflow
          run: |
-            WORKFLOW_NAME="${{ github.workflow }}"
-            grep -rl "name: $WORKFLOW_NAME" .github/workflows/ | xargs cat
+            workflow_path=$(echo "${{ github.workflow_ref }}" | sed -E 's|[^/]+/[^/]+/(.+)@.*|\1|')
+            echo $workflow_path
