@@ -13,8 +13,10 @@ jobs:
       #     echo "Unique Run ID: ${{ github.run_id }}"
       #     echo "Run Sequence Number: ${{ github.run_number }}"
       #     echo "Workflow: $GITHUB_WORKFLOW"
+       - uses: actions/checkout@v6
        - name: Find and print current workflow
          run: |
             workflow_path="${{ github.workspace }}/$(echo "${{ github.workflow_ref }}" | sed -E 's|[^/]+/[^/]+/(.+)@.*|\1|')"
+            echo $workflow_path
             cat $workflow_path
             # echo "${{ github.workspace }}/$workflow_path"
