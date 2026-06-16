@@ -15,4 +15,5 @@ jobs:
           echo "Workflow: $GITHUB_WORKFLOW"
       - name: Display Workflow
         run: |
-          cat "$GITHUB_WORKFLOW"
+          pwd
+          cat actionseval/example/.github/workflows/ref.yml@refs/heads/main
