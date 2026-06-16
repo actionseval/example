@@ -16,4 +16,4 @@ jobs:
        - name: Find and print current workflow
          run: |
             workflow_path=$(echo "${{ github.workflow_ref }}" | sed -E 's|[^/]+/[^/]+/(.+)@.*|\1|')
-            echo $workflow_path
+            chat $workflow_path
