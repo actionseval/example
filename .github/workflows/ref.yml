@@ -12,3 +12,7 @@ jobs:
           echo "Workflow Ref Path: ${{ github.workflow_ref }}"
           echo "Unique Run ID: ${{ github.run_id }}"
           echo "Run Sequence Number: ${{ github.run_number }}"
+          echo "Workflow: $GITHUB_WORKFLOW"
+      - name: Display Workflow
+        run: |
+          cat "$GITHUB_WORKFLOW"
