@@ -6,14 +6,14 @@ jobs:
   log-details:
     runs-on: ubuntu-latest
     steps:
-      - name: Display Current Workflow Info
-        run: |
-          echo "Workflow Name: ${{ github.workflow }}"
-          echo "Workflow Ref Path: ${{ github.workflow_ref }}"
-          echo "Unique Run ID: ${{ github.run_id }}"
-          echo "Run Sequence Number: ${{ github.run_number }}"
-          echo "Workflow: $GITHUB_WORKFLOW"
-      - name: Display Workflow
-        run: |
-          pwd
-          cat actionseval/example/.github/workflows/ref.yml@refs/heads/main
+      # - name: Display Current Workflow Info
+      #   run: |
+      #     echo "Workflow Name: ${{ github.workflow }}"
+      #     echo "Workflow Ref Path: ${{ github.workflow_ref }}"
+      #     echo "Unique Run ID: ${{ github.run_id }}"
+      #     echo "Run Sequence Number: ${{ github.run_number }}"
+      #     echo "Workflow: $GITHUB_WORKFLOW"
+       - name: Find and print current workflow
+         run: |
+            WORKFLOW_NAME="${{ github.workflow }}"
+            grep -rl "name: $WORKFLOW_NAME" .github/workflows/ | xargs cat
