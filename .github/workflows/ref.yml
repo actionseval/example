@@ -1,0 +1,14 @@
+name: CI Pipeline
+
+on: [push]
+
+jobs:
+  log-details:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display Current Workflow Info
+        run: |
+          echo "Workflow Name: ${{ github.workflow }}"
+          echo "Workflow Ref Path: ${{ github.workflow_ref }}"
+          echo "Unique Run ID: ${{ github.run_id }}"
+          echo "Run Sequence Number: ${{ github.run_number }}"
